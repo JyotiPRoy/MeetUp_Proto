@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:ms_engage_proto/core/Session.dart';
-import 'package:ms_engage_proto/core/rtc_core.dart';
 
 class CallScreen extends StatefulWidget {
   final bool makeCall;
