@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "142833176556",
+    "project_id": "ms-engage-proto",
+    "storage_bucket": "ms-engage-proto.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142833176556:android:60b5e4da25da915925bac9",
+        "android_client_info": {
+          "package_name": "com.example.ms_engage_proto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "142833176556-ihlrbtec122ndd9la3due0nssl06hcq8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-ktsCQh7sH5KJ0iYj4J2dlJOx5WFemE8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142833176556-ihlrbtec122ndd9la3due0nssl06hcq8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "142833176556-5qqqoc0e3rj6vlhpcnq1a09jvafi84dc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.msEngageProto"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
