@@ -1,17 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/call_screen.dart';
 import 'package:ms_engage_proto/core/RTCProvider.dart';
+import 'package:ms_engage_proto/core/core_services_provider.dart';
 import 'package:ms_engage_proto/core/rtc_core.dart';
+import 'package:ms_engage_proto/core/user.dart';
+import 'package:ms_engage_proto/services/auth.dart';
+import 'package:ms_engage_proto/store/global_store.dart';
+import 'package:ms_engage_proto/ui/screens/call_screen_web.dart';
+import 'package:ms_engage_proto/ui/screens/dashboard.dart';
+import 'package:ms_engage_proto/ui/screens/landing_screen.dart';
+import 'package:ms_engage_proto/ui/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    RTCProvider(
-      core: RTCCore(),
-      child: MyApp(),
-    ),
+    MyApp(),
   );
 }
 
@@ -28,7 +35,41 @@ class MyApp extends StatelessWidget {
         future: Firebase.initializeApp(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return HomePage();
+            return StreamBuilder<User?>(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot){
+                Auth auth = Auth();
+                print('${snapshot.data == null} + ${snapshot.hasData} + ${snapshot.connectionState == ConnectionState.active}');
+                if(snapshot.connectionState == ConnectionState.active){
+                  if(snapshot.hasData && (snapshot.data != null)){
+                    return FutureBuilder<UserProfile?>(
+                      future: auth.getProfileFromFirebase(snapshot.data!),
+                      builder: (context, snapshot) {
+                        if(snapshot.hasData && snapshot.data != null){
+                          GlobalStore.instance.updateUser(snapshot.data!);
+                          return MultiProvider(
+                            providers: [
+                              StreamProvider<User?>.value(
+                                value: FirebaseAuth.instance.authStateChanges(),
+                                initialData: null,
+                              ),
+                            ],
+                            child: CoreServicesProvider(
+                              auth: auth,
+                              child: Dashboard(),
+                            ),
+                          );
+                        }
+                        return SplashScreen();
+                      }
+                    );
+                  }else if((snapshot.data == null)){
+                    return LandingPage();
+                  }
+                }
+                return SplashScreen();
+              },
+            );
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -76,7 +117,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    final rtcCore = RTCProvider.of(context).core;
+    // final rtcCore = RTCProvider.of(context).core;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.share),
@@ -111,6 +152,7 @@ class _HomePageState extends State<HomePage> {
                     makeCall: false,
                     sessionID: _textController!.text,
                   )));
+                  // Navigator.push(context, MaterialPageRoute(builder: (context) => CallScreenWeb()));
                 },
                 child: Text('Connect'),
               ),
@@ -119,7 +161,6 @@ class _HomePageState extends State<HomePage> {
           SizedBox(
             height: height * 0.05,
           ),
-          SelectableText('The Call ID is: ${rtcCore.rtcCallID}'),
         ],
       ),
     );

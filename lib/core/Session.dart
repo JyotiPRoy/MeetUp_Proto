@@ -7,11 +7,12 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 typedef void StreamStateCallback(MediaStream stream);
 
 class Session{
+
   Session({this.sessionID}){
     callDoc = FirebaseFirestore.instance.collection('calls').doc(sessionID);
     sessionID = callDoc.id; // Since sessionID can be null (in case of calling)
     offerCandidates = callDoc.collection('offerCandidates');
-    answerCandidates = answerCandidates = callDoc.collection('answerCandidates');
+    answerCandidates = callDoc.collection('answerCandidates');
   }
 
   late String? sessionID;
