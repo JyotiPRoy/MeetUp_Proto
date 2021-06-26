@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:ms_engage_proto/core/user.dart';
+import 'package:ms_engage_proto/model/user.dart';
 
 class GlobalStore with ChangeNotifier{
   UserProfile? _currentUser;
@@ -14,6 +14,7 @@ class GlobalStore with ChangeNotifier{
 
   static GlobalStore get instance => _instance;
   UserProfile? get currentUser => _currentUser;
+  Stream<UserProfile?> get currentUserStream => _userStreamController.stream;
 
   void updateUser(UserProfile user){
     _currentUser = user;

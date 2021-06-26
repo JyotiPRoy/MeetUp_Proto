@@ -1,9 +1,16 @@
 
+import 'dart:convert';
+
 class UserProfile{
   final String userID;
   String userName;
   String? pfpUrl;
   String? email;
+  /// Contains list of chat-room IDs.
+  List<String>? chatRooms;
+  /// Pending Friend Requests. Contains a list of userIDs of users
+  /// who have sent the friend requests.
+  List<String>? pendingRequests;
   bool shareEmail;
 
   UserProfile({
@@ -11,6 +18,8 @@ class UserProfile{
     required this.userName,
     this.pfpUrl,
     this.email,
+    this.chatRooms,
+    this.pendingRequests,
     this.shareEmail = false,}){
     _createUser();
   }
@@ -21,6 +30,12 @@ class UserProfile{
       'userName' : this.userName,
       'pfpUrl' : this.pfpUrl,
       'email' : this.email,
+      'chatRooms' : this.chatRooms != null
+                      ? jsonEncode(this.chatRooms)
+                      : 'null',
+      'pendingRequests' : this.pendingRequests != null
+                            ? jsonEncode(this.pendingRequests)
+                            : 'null',
       'shareEmail' : this.shareEmail
     };
   }
@@ -30,6 +45,12 @@ class UserProfile{
     userName = map['userName'],
     pfpUrl = map['pfpUrl'],
     email = map['email'],
+    chatRooms = map['chatRooms'] != 'null'
+                  ? List<String>.from(jsonDecode(map['chatRooms']))
+                  : null,
+    pendingRequests = map['pendingRequests'] != 'null'
+                        ? List<String>.from(jsonDecode(map['pendingRequests']))
+                        : null,
     shareEmail = map['shareEmail'];
 
   UserProfile copyWith({
@@ -37,6 +58,8 @@ class UserProfile{
     String? userName,
     String? pfpUrl,
     String? email,
+    List<String>? chatRooms,
+    List<String>? pendingRequests,
     bool? shareEmail
   }){
     return UserProfile(
@@ -44,6 +67,8 @@ class UserProfile{
       userName: userName ?? this.userName,
       pfpUrl: pfpUrl ?? this.pfpUrl,
       email: email ?? this.email,
+      chatRooms: chatRooms ?? this.chatRooms,
+      pendingRequests: pendingRequests ?? this.pendingRequests,
       shareEmail: shareEmail ?? this.shareEmail
     );
   }

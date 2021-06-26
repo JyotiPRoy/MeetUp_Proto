@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ms_engage_proto/core/user.dart';
+import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
 import 'package:ms_engage_proto/store/global_store.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
@@ -25,6 +25,13 @@ class _SignInDialogState extends State<SignInDialog> {
   TextEditingController _passwordController = TextEditingController();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _submit() async {
     try{

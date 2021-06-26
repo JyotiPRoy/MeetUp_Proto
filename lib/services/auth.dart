@@ -6,11 +6,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:ms_engage_proto/core/user.dart';
+import 'package:mime/mime.dart';
+import 'package:ms_engage_proto/model/user.dart';
 
 class Auth{
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _userCollection = FirebaseFirestore.instance.collection('users');
+  final _userName_ID_Map = FirebaseFirestore.instance.collection('userName-ID');
   final _storageReference = FirebaseStorage.instance.ref('user_pfps');
 
   User? currentUser(){
@@ -22,31 +24,31 @@ class Auth{
       UserProfile fromLanding,
       PlatformFile? pfp
     ) async {
-    // try{
-    //
-    // }catch(e){
-    //   print('EXCP @createNewUser : ${e.toString()}');
-    //   return null;
-    // }
-    String location = '';
-
-    if(pfp != null){
-      final pfpFile = _storageReference.child('${userID}_pfp.${pfp.extension}');
-      // Uploading the pfp got from local storage as a List of bytes
-      // Not providing any metadata for the image as of now
-      await pfpFile.putData(pfp.bytes!, SettableMetadata(contentType: 'image'));
-      // Getting the download url
-      location = await pfpFile.getDownloadURL();
-      // Setting pfpUrl = location, so we can use that anywhere in the app with
-      // NetworkImage widget
+    try{
+      String location = '';
+      if(pfp != null){
+        final pfpFile = _storageReference.child('${userID}_pfp.${pfp.extension}');
+        // Uploading the pfp got from local storage as a List of bytes
+        // Not providing any metadata for the image as of now
+        await pfpFile.putData(pfp.bytes!, SettableMetadata(contentType: lookupMimeType(pfp.name)));
+        // Getting the download url
+        location = await pfpFile.getDownloadURL();
+        // Setting pfpUrl = location, so we can use that anywhere in the app with
+        // NetworkImage widget
+      }
+      UserProfile newUser = fromLanding.copyWith(
+          userID: userID,
+          pfpUrl: location
+      );
+      // Uploading User details to Firestore 'users' collection and adding
+      // <Username, UserID> to userName-ID collection, for easy searching
+      await _userCollection.doc(userID).set(newUser.toMap());
+      await _userName_ID_Map.doc(fromLanding.userName).set({'id' : userID});
+      return newUser;
+    }catch(e){
+      print('EXCP @createNewUser : ${e.toString()}');
+      return null;
     }
-    UserProfile newUser = fromLanding.copyWith(
-        userID: userID,
-        pfpUrl: location
-    );
-    // Uploading User details to Firestore 'users' collection
-    await _userCollection.doc(userID).set(newUser.toMap());
-    return newUser;
   }
 
   Future<UserProfile?> getProfileFromFirebase(User user) async {

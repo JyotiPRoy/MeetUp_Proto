@@ -12,6 +12,7 @@ class DefaultButton extends StatelessWidget {
   final BorderSide? buttonBorder;
   final Size? fixedSize;
   final double? elevation;
+  final EdgeInsetsGeometry? padding;
 
   DefaultButton({
     Key? key,
@@ -23,7 +24,8 @@ class DefaultButton extends StatelessWidget {
     this.style,
     this.buttonBorder,
     this.fixedSize,
-    this.elevation
+    this.elevation,
+    this.padding
   }) : super(key: key);
 
   @override
@@ -32,6 +34,8 @@ class DefaultButton extends StatelessWidget {
       onPressed: onPress,
       child: child,
       style: ButtonStyle(
+        padding: fixedSize == null
+                  ? MaterialStateProperty.all(padding) : null,
         backgroundColor: MaterialStateProperty.all(buttonColor),
         fixedSize: fixedSize != null ? MaterialStateProperty.all(fixedSize) : null,
         elevation: MaterialStateProperty.all(elevation),

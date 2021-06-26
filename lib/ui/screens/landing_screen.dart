@@ -81,7 +81,7 @@ class _LandingPageState extends State<LandingPage> {
               ),
               buttonColor: AppStyle.primaryColor,
               buttonBorder:
-                  BorderSide(color: AppStyle.buttonBorderColor, width: 1.5),
+                  BorderSide(color: AppStyle.defaultBorderColor, width: 1.5),
             ),
           ],
         ),

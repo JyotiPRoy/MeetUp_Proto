@@ -39,7 +39,7 @@ class WebHeader extends StatelessWidget with PreferredSizeWidget {
             fixedSize: Size(45, 55),
             buttonColor: AppStyle.primaryColor,
             buttonBorder: BorderSide(
-              color: AppStyle.buttonBorderColor,
+              color: AppStyle.defaultBorderColor,
               width: 2.0
             ),
           ),

@@ -1,12 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/call_screen.dart';
-import 'package:ms_engage_proto/core/RTCProvider.dart';
-import 'package:ms_engage_proto/core/core_services_provider.dart';
+import 'package:ms_engage_proto/provider/RTCProvider.dart';
+import 'package:ms_engage_proto/provider/core_services_provider.dart';
 import 'package:ms_engage_proto/core/rtc_core.dart';
-import 'package:ms_engage_proto/core/user.dart';
+import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
 import 'package:ms_engage_proto/store/global_store.dart';
 import 'package:ms_engage_proto/ui/screens/call_screen_web.dart';
@@ -27,11 +26,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      routes: {
+        //TODO: ADD NAMED ROUTES HERE
+      },
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        fontFamily: 'Montserrat',
       ),
-      home: FutureBuilder(
+      home: true
+      ? Dashboard()
+      :FutureBuilder(
         future: Firebase.initializeApp(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {

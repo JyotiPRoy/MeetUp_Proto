@@ -49,7 +49,7 @@ class _HeaderToggleButtonsState extends State<HeaderToggleButtons> {
           fixedSize: Size(160,55),
           buttonBorder: _selectedIndex != 0
               ? BorderSide(
-                  color: AppStyle.buttonBorderColor,
+                  color: AppStyle.defaultBorderColor,
                   width: 2.0
                 )
               : BorderSide.none,
@@ -86,7 +86,7 @@ class _HeaderToggleButtonsState extends State<HeaderToggleButtons> {
           fixedSize: Size(160,55),
           buttonBorder: _selectedIndex != 1
               ? BorderSide(
-              color: AppStyle.buttonBorderColor,
+              color: AppStyle.defaultBorderColor,
               width: 2.0
           )
               : BorderSide.none,

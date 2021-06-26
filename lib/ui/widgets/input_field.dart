@@ -38,16 +38,18 @@ class InputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '  $fieldName',
-          style: TextStyle(
-              color: AppStyle.whiteAccent,
-              fontSize: 16,
-              fontWeight: FontWeight.bold
-          ),
-        ),
+        fieldName != ''
+          ? Text(
+              '  $fieldName',
+              style: TextStyle(
+                  color: AppStyle.whiteAccent,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold
+              ),
+            )
+          : Container(),
         SizedBox(
-          height: 8,
+          height: fieldName != '' ? 8 : 0,
         ),
         Container(
           decoration: inputFieldDecor,

@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:ms_engage_proto/core/user.dart';
+import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
 import 'package:ms_engage_proto/store/global_store.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
