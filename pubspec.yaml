@@ -22,6 +22,7 @@ dependencies:
   file_picker: ^3.0.3
   mime: ^1.0.0
   http: ^0.13.3
+  table_calendar: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -58,48 +59,24 @@ flutter:
       fonts:
         - asset: assets/fonts/Montserrat-Black.ttf
           weight: 900
-        - asset: assets/fonts/Montserrat-BlackItalic.ttf
-          weight: 900
-          style: italic
         - asset: assets/fonts/Montserrat-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Montserrat-BoldItalic.ttf
-          weight: 700
-          style: italic
         - asset: assets/fonts/Montserrat-ExtraBold.ttf
           weight: 800
-        - asset: assets/fonts/Montserrat-ExtraBoldItalic.ttf
-          weight: 800
-          style: italic
         - asset: assets/fonts/Montserrat-ExtraLight.ttf
           weight: 200
-        - asset: assets/fonts/Montserrat-ExtraLightItalic.ttf
-          weight: 200
-          style: italic
         - asset: assets/fonts/Montserrat-Italic.ttf
           style: italic
         - asset: assets/fonts/Montserrat-Light.ttf
           weight: 300
-        - asset: assets/fonts/Montserrat-LightItalic.ttf
-          weight: 300
-          style: italic
         - asset: assets/fonts/Montserrat-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Montserrat-MediumItalic.ttf
-          weight: 500
-          style: italic
         - asset: assets/fonts/Montserrat-Regular.ttf
           weight: 400
         - asset: assets/fonts/Montserrat-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Montserrat-SemiBoldItalic.ttf
-          weight: 600
-          style: italic
         - asset: assets/fonts/Montserrat-Thin.ttf
           weight: 100
-        - asset: assets/fonts/Montserrat-ThinItalic.ttf
-          weight: 100
-          style: italic
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

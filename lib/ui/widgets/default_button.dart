@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-const kButtonBorderRadius = 15.0;
-
 class DefaultButton extends StatelessWidget {
   final VoidCallback onPress;
   final VoidCallback? onLongPress;
@@ -13,6 +11,7 @@ class DefaultButton extends StatelessWidget {
   final Size? fixedSize;
   final double? elevation;
   final EdgeInsetsGeometry? padding;
+  final double? borderRadius;
 
   DefaultButton({
     Key? key,
@@ -25,7 +24,8 @@ class DefaultButton extends StatelessWidget {
     this.buttonBorder,
     this.fixedSize,
     this.elevation,
-    this.padding
+    this.padding,
+    this.borderRadius
   }) : super(key: key);
 
   @override
@@ -41,7 +41,7 @@ class DefaultButton extends StatelessWidget {
         elevation: MaterialStateProperty.all(elevation),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kButtonBorderRadius),
+            borderRadius: BorderRadius.circular(borderRadius ?? 15),
             side: buttonBorder ?? BorderSide.none
           )
         )

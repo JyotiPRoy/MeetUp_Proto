@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 class MeetingEvent {
-  final String roomID;
+  final String roomID; // Also serves as the ID for this event of Firestore db
+  final String hostID;
   final String title;
   final DateTime start;
   final DateTime? end;
@@ -11,6 +12,7 @@ class MeetingEvent {
   
   MeetingEvent({
     required this.roomID,
+    required this.hostID,
     required this.title,
     required this.start,
     this.end,
@@ -22,6 +24,7 @@ class MeetingEvent {
   factory MeetingEvent.fromMap(Map map)
     => MeetingEvent(
       roomID: map['roomID'],
+      hostID: map['hostID'],
       title: map['title'],
       start: DateTime.parse(map['start']),
       end: map['end'] != ''
@@ -38,6 +41,7 @@ class MeetingEvent {
   Map<String,dynamic> toMap()
   => {
     'roomID' : this.roomID,
+    'hostID' : this.hostID,
     'title' : this.title,
     'start' : this.start.toIso8601String(),
     'end' : this.end != null

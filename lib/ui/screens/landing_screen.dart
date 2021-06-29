@@ -8,7 +8,6 @@ import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
 class LandingPage extends StatefulWidget {
 
-
   LandingPage({
     Key? key,
   }) : super(key: key);
@@ -19,7 +18,6 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
 
-  
   void _showSignUpDialog(BuildContext context) async {
     Dialog signUp = Dialog(
       elevation: 2,

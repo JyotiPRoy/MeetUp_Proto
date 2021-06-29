@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
-import 'package:ms_engage_proto/store/global_store.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/screens/dashboard.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
@@ -44,7 +44,7 @@ class _SignInDialogState extends State<SignInDialog> {
         );
         if(user != null){
           setState(() {_isLoading = false;});
-          GlobalStore.instance.updateUser(user);
+          SessionData.instance.updateUser(user);
           Navigator.of(context).push(MaterialPageRoute(builder: (builder) => Dashboard()));
         }else print('Null User Returned @Sign In');
       }

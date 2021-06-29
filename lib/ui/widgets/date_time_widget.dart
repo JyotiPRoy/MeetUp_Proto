@@ -66,7 +66,7 @@ class DateTimeDisplay extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '4 : 17 PM',
+                    '${DateTime.now().hour} : ${DateTime.now().minute}',
                     style: TextStyle(
                         color: AppStyle.whiteAccent,
                         fontSize: 48,
@@ -77,7 +77,7 @@ class DateTimeDisplay extends StatelessWidget {
                     height: 8,
                   ),
                   Text(
-                    'Friday, 25 June 2021',
+                    'Friday, ${DateTime.now().day} June ${DateTime.now().year}',
                     style: TextStyle(
                         color: AppStyle.whiteAccent,
                         fontSize: 20,

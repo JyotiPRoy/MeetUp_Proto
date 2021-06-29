@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/model/user.dart';
-import 'package:ms_engage_proto/store/global_store.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/screens/home_view.dart';
 import 'package:ms_engage_proto/ui/screens/scheduled_meetings_view.dart';
@@ -225,7 +225,7 @@ class _DashboardState extends State<Dashboard> {
                               width: 30,
                             ),
                             StreamBuilder<UserProfile?>(
-                              stream: GlobalStore.instance.currentUserStream,
+                              stream: SessionData.instance.currentUserStream,
                               builder: (context, snapshot){
                                 UserProfile? user = snapshot.data;
                                 return Container(

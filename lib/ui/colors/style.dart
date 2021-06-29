@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class AppStyle{
   static final primaryColor = Color.fromRGBO(29, 31, 46, 1);
@@ -20,5 +21,49 @@ class AppStyle{
       fontWeight: FontWeight.bold,
       fontSize: 26
     ),
+  );
+
+  static CalendarStyle calendarStyle = CalendarStyle(
+    defaultTextStyle: TextStyle(
+        color: whiteAccent
+    ),
+    disabledTextStyle: TextStyle(
+        color: darkBorderColor
+    ),
+    outsideTextStyle: TextStyle(
+        color: defaultUnselectedColor
+    ),
+    weekendTextStyle: TextStyle(
+        color: whiteAccent
+    ),
+    selectedDecoration: BoxDecoration(
+      color: primaryButtonColor,
+      shape: BoxShape.circle
+    ),
+    todayDecoration: BoxDecoration(
+      color: primaryColor,
+        shape: BoxShape.circle
+    ),
+    defaultDecoration: BoxDecoration(
+      color: primaryColor,
+      shape: BoxShape.circle
+    )
+
+  );
+
+  static HeaderStyle calendarHeaderStyle = HeaderStyle(
+      formatButtonVisible: false,
+      titleTextStyle: TextStyle(
+          color: whiteAccent,
+          fontSize: 16
+      ),
+      leftChevronIcon: Icon(
+        Icons.chevron_left,
+        color: whiteAccent,
+      ),
+      rightChevronIcon: Icon(
+        Icons.chevron_right,
+        color: whiteAccent,
+      )
   );
 }

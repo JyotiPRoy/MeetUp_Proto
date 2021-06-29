@@ -112,9 +112,10 @@ List<Widget> get scheduledMeetingCards {
 
 final List<Map<String,dynamic>> _scheduledMeetingEvents = [
   {
+    'hostID': 'XXYZ',
     'title' : 'Daily Sprint Session',
-    'start' : DateTime(2021,6,26,18,30).toIso8601String(),
-    'end' : DateTime(2021,6,26,21,10).toIso8601String(),
+    'start' : DateTime(2021,6,29,19,30).toIso8601String(),
+    'end' : DateTime(2021,6,29,21,10).toIso8601String(),
     'details' : 'Daily meeting to discuss about individual progress in the current sprint',
     'participants' : [
 
@@ -123,9 +124,10 @@ final List<Map<String,dynamic>> _scheduledMeetingEvents = [
     'roomID' : '25-6-21-aYtaXjcYk',
   },
   {
+    'hostID': 'XXYZ',
     'title' : 'Design Revision Session',
-    'start' : DateTime(2021,6,26,13,30).toIso8601String(),
-    'end' : DateTime(2021,6,26,15,30).toIso8601String(),
+    'start' : DateTime(2021,6,30,13,30).toIso8601String(),
+    'end' : DateTime(2021,6,30,15,30).toIso8601String(),
     'details' : 'Review and make changes to the current System & UI design',
     'participants' : [
       'uaZTyCa>LJBchUTU',
@@ -133,18 +135,19 @@ final List<Map<String,dynamic>> _scheduledMeetingEvents = [
       'jugfulDKUTDukyYa',
     ],
     'allowAnon' : false,
-    'roomID' : '25-6-21-aYtaXjcYk',
+    'roomID' : '25-6-21-gJyVxCTkYt',
   },
   {
+    'hostID': 'YYYZ',
     'title' : 'Code Review',
-    'start' : DateTime(2021,6,27,10,30).toIso8601String(),
-    'end' : DateTime(2021,6,27,12,25).toIso8601String(),
+    'start' : DateTime(2021,7,1,10,30).toIso8601String(),
+    'end' : DateTime(2021,7,1,12,25).toIso8601String(),
     'details' : 'Code Review with Senior',
     'participants' : [
       'uaZTyCa>LJBchUTU',
       'aioJTxTyhOqxYjtz',
     ],
     'allowAnon' : false,
-    'roomID' : '25-6-21-aYtaXjcYk',
+    'roomID' : '25-6-21-tdRJesTTxU',
   }
 ];

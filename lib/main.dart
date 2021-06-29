@@ -7,7 +7,7 @@ import 'package:ms_engage_proto/provider/core_services_provider.dart';
 import 'package:ms_engage_proto/core/rtc_core.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
-import 'package:ms_engage_proto/store/global_store.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/screens/call_screen_web.dart';
 import 'package:ms_engage_proto/ui/screens/dashboard.dart';
 import 'package:ms_engage_proto/ui/screens/landing_screen.dart';
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
                       future: auth.getProfileFromFirebase(snapshot.data!),
                       builder: (context, snapshot) {
                         if(snapshot.hasData && snapshot.data != null){
-                          GlobalStore.instance.updateUser(snapshot.data!);
+                          SessionData.instance.updateUser(snapshot.data!);
                           return MultiProvider(
                             providers: [
                               StreamProvider<User?>.value(
