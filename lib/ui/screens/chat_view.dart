@@ -55,7 +55,7 @@ class _ChatViewState extends State<ChatView> {
                       if(snapshot.hasData && snapshot.data != null){
                         return Column(
                           children: snapshot.data!.map((chatRoom){
-                            UserProfile user = chatRoom.participants[1];
+                            UserProfile user = chatRoom.participants[0];
                            return Container(
                              height: 75,
                              child: Row(

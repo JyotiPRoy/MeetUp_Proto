@@ -25,6 +25,7 @@ dependencies:
   table_calendar: ^3.0.0
   algolia: ^1.0.1
   timer_builder: ^2.0.0
+  rxdart: ^0.27.1
 
 dev_dependencies:
   flutter_test:

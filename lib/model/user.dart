@@ -34,7 +34,8 @@ class UserProfile{
   UserProfile.fromMap(Map map)
   : userID = map['userID'],
     userName = map['userName'],
-    pfpUrl = map['pfpUrl'],
+    pfpUrl = map['pfpUrl'] == null || map['pfpUrl'] == ''
+        ? null : map['pfpUrl'],
     email = map['email'],
     shareEmail = map['shareEmail'],
     optOutOfSearch = map['optOutOfSearch'];

@@ -21,7 +21,7 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
   StreamController<int> listController = StreamController<int>.broadcast();
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  StreamController<int> tabController = StreamController<int>.broadcast();
+  // StreamController<int> tabController = StreamController<int>.broadcast();
 
   void _showAddEventDialog(BuildContext context) async {
     Dialog signUp = Dialog(
@@ -42,7 +42,7 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
     super.initState();
     Future.delayed(const Duration(milliseconds: 50), () async {
       listController.add(0);
-      tabController.add(0);
+      // tabController.add(0);
     });
   }
 
@@ -84,19 +84,13 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
                       buttonColor: AppStyle.secondaryColor,
                     ),
                     Expanded(child: SizedBox()),
-                    TabsButtonGroup(
-                      children: [
-                        TabButton(
-                          selectionController: tabController,
-                          title: 'My Events',
-                          index: 0,
-                        ),
-                        TabButton(
-                          selectionController: tabController,
-                          title: 'Invitations',
-                          index: 1,
-                        ),
-                      ],
+                    Text(
+                      'My Events',
+                      style: TextStyle(
+                        color: AppStyle.whiteAccent,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold
+                      ),
                     ),
                     Expanded(child: SizedBox()),
                     DefaultButton(

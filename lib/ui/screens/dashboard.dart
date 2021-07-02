@@ -8,6 +8,7 @@ import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/screens/chat_view.dart';
+import 'package:ms_engage_proto/ui/screens/contacts_view.dart';
 import 'package:ms_engage_proto/ui/screens/home_view.dart';
 import 'package:ms_engage_proto/ui/screens/scheduled_meetings_view.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
@@ -54,7 +55,7 @@ class _DashboardState extends State<Dashboard> {
     pages.addAll([
       HomeView(),
       ChatView(),
-      Container(),
+      ContactsView(),
       ScheduledMeetingsView(),
     ]);
     _switcherChild = pages[0];
