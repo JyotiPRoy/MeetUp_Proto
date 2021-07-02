@@ -105,35 +105,6 @@ class _CallScreenState extends State<CallScreen> {
               ),
             ],
           ),
-
-
-
-
-          // child: Column(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   crossAxisAlignment: CrossAxisAlignment.center,
-          //   children: [
-          //     Container(
-          //       height: kIsWeb ? 400 : 200,
-          //       width: 480,
-          //       decoration: BoxDecoration(
-          //         border: Border.all(color: Colors.black, width: 1.5),
-          //       ),
-          //       child: RTCVideoView(_localRenderer),
-          //     ),
-          //     SizedBox(
-          //       height: height * 0.005,
-          //     ),
-          //     Container(
-          //       height: kIsWeb ? 400 : 200,
-          //       width: 480,
-          //       decoration: BoxDecoration(
-          //         border: Border.all(color: Colors.black, width: 1.5)
-          //       ),
-          //       child: RTCVideoView(_remoteRenderer),
-          //     ),
-          //   ],
-          // ),
         ),
       ),
     );

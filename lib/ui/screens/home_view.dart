@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:ms_engage_proto/ui/modals/join_call.dart';
+import 'package:ms_engage_proto/ui/modals/start_call.dart';
+import 'package:ms_engage_proto/ui/screens/call_screen_web.dart';
 import 'package:ms_engage_proto/ui/widgets/dashboard_action_btn.dart';
 import 'package:ms_engage_proto/ui/widgets/date_time_widget.dart';
+import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 import 'package:ms_engage_proto/ui/widgets/meeting_calendar_event.dart';
+import 'package:ms_engage_proto/utils/misc_utils.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -40,21 +45,25 @@ class HomeView extends StatelessWidget {
                     subtext: 'Setup a New Meeting',
                     icon: FontAwesomeIcons.video,
                     color: AppStyle.primaryHomeAction,
+                    onTap: () => _showStartCallDialog(context),
                   ),
                   DashboardActionButton(
                     title: 'Join Meeting',
                     subtext: 'Join via Link or Anon',
                     icon: FontAwesomeIcons.solidPlusSquare,
+                    onTap: () => _showJoinDialog(context),
                   ),
                   DashboardActionButton(
                     title: 'Schedule Meeting',
                     subtext: 'Plan your Meetings',
                     icon: FontAwesomeIcons.solidClock,
+                    onTap: (){},
                   ),
                   DashboardActionButton(
                     title: 'Share Screen',
                     subtext: 'Present your Work',
                     icon: FontAwesomeIcons.share,
+                    onTap: (){},
                   ),
                 ],
               ),
@@ -97,6 +106,32 @@ class HomeView extends StatelessWidget {
       ],
     );
   }
+}
+
+void _showStartCallDialog(BuildContext context) async {
+  Dialog startCall = Dialog(
+    elevation: 2,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+    backgroundColor: AppStyle.primaryColor,
+    child: StartCallDialog(),
+  );
+  await showDialog<Dialog>(
+    context: context,
+    builder: (context) => startCall,
+  );
+}
+
+void _showJoinDialog(BuildContext context) async {
+  Dialog startCall = Dialog(
+    elevation: 2,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+    backgroundColor: AppStyle.primaryColor,
+    child: JoinCallDialog(),
+  );
+  await showDialog<Dialog>(
+    context: context,
+    builder: (context) => startCall,
+  );
 }
 
 List<Widget> get scheduledMeetingCards {

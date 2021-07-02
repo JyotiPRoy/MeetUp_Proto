@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ms_engage_proto/model/user.dart';
+import 'package:ms_engage_proto/services/auth.dart';
 
 class ChatAttachment{
   final String path;  // TODO: Determine whether it should be Uri or String
@@ -67,19 +69,71 @@ class Chat{
   }
 }
 
+class ChatRoom {
+  String roomID;
+  List<UserProfile> participants;
 
-class SessionChat{
+  ChatRoom({
+    required this.roomID,
+    required this.participants
+  });
 
-  SessionChat({required this.sessionID}){
-    _chatCollection =
-        FirebaseFirestore.instance.collection('calls').doc(sessionID).collection('sessionChat');
-
+  static Future<ChatRoom> fromMap(Map map) async {
+    Auth auth = Auth();
+    List<UserProfile> _participants = [];
+    for(String participantID in map['participants']){
+      UserProfile? user = await auth.getProfileFromFirebase(participantID);
+      if(user != null){
+        _participants.add(user);
+      }else throw Exception('Null User @ChatRoom -> fromMap()');
+    }
+    return ChatRoom(roomID: map['roomID'], participants: _participants);
   }
 
-  final String sessionID;
-  final List<Chat> _chats = <Chat>[];
+  factory ChatRoom.fromPendingRequest(PendingRequest request)
+  => ChatRoom(
+      roomID: request.chatRoomID,
+      participants: request.participants
+    );
 
-   late CollectionReference<Map<String,dynamic>> _chatCollection;
+  Map<String,dynamic> toMap()
+   => {
+      'roomID' : this.roomID,
+      'participants' : this.participants.map((user) => user.userID).toList(),
+   };
+}
 
+class PendingRequest {
+  String chatRoomID; // This will be the ID of the ChatRoom once the request is accepted
+  List<UserProfile> participants;
+
+  PendingRequest({
+    required this.chatRoomID,
+    required this.participants
+  });
+
+  static Future<PendingRequest> fromMap(Map map) async {
+    Auth auth = Auth();
+    List<UserProfile> _participants = [];
+    for(String participantID in map['participants']){
+      UserProfile? user = await auth.getProfileFromFirebase(participantID);
+      if(user != null){
+        _participants.add(user);
+      }else throw Exception('Null User @PendingRequest -> fromMap()');
+    }
+    return PendingRequest(chatRoomID: map['chatRoomID'], participants: _participants);
+  }
+
+  Map<String,dynamic> toMap()
+  => {
+    'chatRoomID' : this.chatRoomID,
+    'participants' : this.participants.map((user) => user.userID).toList()
+  };
+
+  Map<String,dynamic> toChatRoomMap()
+  => {
+    'roomID' : this.chatRoomID,
+    'participants' : this.participants.map((user) => user.userID).toList()
+  };
 
 }

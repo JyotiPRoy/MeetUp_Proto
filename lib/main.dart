@@ -8,7 +8,6 @@ import 'package:ms_engage_proto/core/rtc_core.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
-import 'package:ms_engage_proto/ui/screens/call_screen_web.dart';
 import 'package:ms_engage_proto/ui/screens/dashboard.dart';
 import 'package:ms_engage_proto/ui/screens/landing_screen.dart';
 import 'package:ms_engage_proto/ui/screens/splash_screen.dart';
@@ -34,7 +33,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Montserrat',
       ),
-      home: true
+      home: false
       ? Dashboard()
       :FutureBuilder(
         future: Firebase.initializeApp(),
@@ -48,7 +47,7 @@ class MyApp extends StatelessWidget {
                 if(snapshot.connectionState == ConnectionState.active){
                   if(snapshot.hasData && (snapshot.data != null)){
                     return FutureBuilder<UserProfile?>(
-                      future: auth.getProfileFromFirebase(snapshot.data!),
+                      future: auth.getProfileFromFirebase(snapshot.data!.uid),
                       builder: (context, snapshot) {
                         if(snapshot.hasData && snapshot.data != null){
                           SessionData.instance.updateUser(snapshot.data!);

@@ -32,37 +32,37 @@ class _SignUpDialogState extends State<SignUpDialog> {
     var img = await FilePicker.platform.pickFiles(type: FileType.image);
     setState(() {
       _pfp = img;
-      print('IMG PATH: ${_pfp!.files.first.path}');
     });
   }
 
   Future<void> _submit() async {
-    try{
-      if (_formKey.currentState!.validate()) {
-        Auth auth = Auth();
-        UserProfile dummyProfile = UserProfile(
-          userID:
-          'dummy', // dummy ID since we don't have an ID yet, which will be provided with signup
-          userName: _usernameController.text,
-          email: _emailController.text,
-        );
-        setState(() {_isLoading = true;});
-        UserProfile? response = await auth.signUpWithEmail(
-          _emailController.text,
-          _passwordController.text,
-          dummyProfile,
-          _pfp != null ? _pfp!.files.first : null,
-        );
-        if (response != null) {
-          setState(() {_isLoading = false;});
-          SessionData.instance.updateUser(response);
-          Navigator.of(context).push(MaterialPageRoute(builder: (builder) => Dashboard()));
-        } else
-          print('Null User returned! @DialogBox');
-      }
-    }catch(e){
-      print('EXCP @SignUp dialog: ${e.toString()}');
-      return;
+    // try{
+    //
+    // }catch(e){
+    //   print('EXCP @SignUp dialog: ${e.toString()}');
+    //   return;
+    // }
+    if (_formKey.currentState!.validate()) {
+      Auth auth = Auth();
+      UserProfile dummyProfile = UserProfile(
+        userID:
+        'dummy', // dummy ID since we don't have an ID yet, which will be provided with signup
+        userName: _usernameController.text,
+        email: _emailController.text,
+      );
+      setState(() {_isLoading = true;});
+      UserProfile? response = await auth.signUpWithEmail(
+        _emailController.text,
+        _passwordController.text,
+        dummyProfile,
+        _pfp != null ? _pfp!.files.first : null,
+      );
+      if (response != null) {
+        setState(() {_isLoading = false;});
+        SessionData.instance.updateUser(response);
+        Navigator.of(context).push(MaterialPageRoute(builder: (builder) => Dashboard()));
+      } else
+        print('Null User returned! @DialogBox');
     }
   }
 

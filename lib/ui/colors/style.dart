@@ -13,6 +13,7 @@ class AppStyle{
   static final defaultTextColor = Color.fromRGBO(199, 198, 201, 1);
   static final primaryButtonColor = Color.fromRGBO(17, 121, 248, 1);
   static final primaryHomeAction = Color.fromRGBO(237, 113, 46, 1);
+  static final defaultErrorColor = Color.fromRGBO(217, 65, 55, 1);
 
   static Text defaultHeaderText(String text) => Text(
     text,

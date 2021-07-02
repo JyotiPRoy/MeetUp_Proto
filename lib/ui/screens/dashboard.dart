@@ -3,13 +3,17 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:ms_engage_proto/ui/screens/chat_view.dart';
 import 'package:ms_engage_proto/ui/screens/home_view.dart';
 import 'package:ms_engage_proto/ui/screens/scheduled_meetings_view.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 import 'package:ms_engage_proto/ui/widgets/nav_toggle_button.dart';
+import 'package:ms_engage_proto/ui/widgets/pending_requests_view.dart';
+import 'package:ms_engage_proto/ui/widgets/search_widget.dart';
 
 
 
@@ -24,7 +28,6 @@ class _DashboardState extends State<Dashboard> {
   // ignore: close_sinks
   StreamController<int> toggleGroupController = StreamController<int>.broadcast();
   set currentButton(int i) => toggleGroupController.sink.add(i);
-  TextEditingController _searchController = TextEditingController();
 
   String _currentPageTitle = 'Home';
   List<Widget> pages = <Widget>[];
@@ -50,7 +53,7 @@ class _DashboardState extends State<Dashboard> {
     });
     pages.addAll([
       HomeView(),
-      Container(),
+      ChatView(),
       Container(),
       ScheduledMeetingsView(),
     ]);
@@ -59,7 +62,6 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void dispose() {
-    _searchController.dispose();
     // toggleGroupController.close();
     super.dispose();
   }
@@ -193,41 +195,21 @@ class _DashboardState extends State<Dashboard> {
                             Expanded(
                               child: SizedBox(),
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              width: width * 0.15,
-                              decoration: BoxDecoration(
-                                color: AppStyle.secondaryColor,
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                  color: AppStyle.defaultBorderColor
-                                )
-                              ),
-                              child: TextField(
-                                maxLines: 1,
-                                controller: _searchController,
-                                decoration: InputDecoration(
-                                  prefixIcon: Icon(
-                                    Icons.search,
-                                    color: AppStyle.defaultUnselectedColor,
-                                    // size: 18,
-                                  ),
-                                  hintText: 'Search...',
-                                  hintStyle: TextStyle(
-                                    color: AppStyle.defaultUnselectedColor,
-                                    fontSize: 18
-                                  ),
-                                  border: InputBorder.none
-                                ),
-                              ),
-                            ),
+                            SearchWidget(),
                             SizedBox(
-                              width: 30,
+                              width: 20,
+                            ),
+                            PendingRequestsView(),
+                            SizedBox(
+                              width: 20,
                             ),
                             StreamBuilder<UserProfile?>(
                               stream: SessionData.instance.currentUserStream,
                               builder: (context, snapshot){
                                 UserProfile? user = snapshot.data;
+                                if(user != null){
+                                  print('PFP URL: ${user.pfpUrl}');
+                                }
                                 return Container(
                                   clipBehavior: Clip.antiAlias,
                                   width: 50,

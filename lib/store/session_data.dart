@@ -1,18 +1,35 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
 import 'package:ms_engage_proto/model/user.dart';
+import 'package:ms_engage_proto/services/auth.dart';
+import 'package:ms_engage_proto/utils/misc_utils.dart';
 
 part 'session_calendar_events.dart';
+part 'session_chat_data.dart';
 
-class SessionData with ChangeNotifier, _SessionCalendarEvents{
+class SessionData
+    with ChangeNotifier, _SessionCalendarEvents, _SessionChatData{
   UserProfile? _currentUser;
+  /// String roomID (also ID of the event on Firestore) & MeetingEvent is the event object
   Map<String,MeetingEvent>  _calendarEvents = <String,MeetingEvent>{};
+  /// List of ChatRooms
+  List<ChatRoom> _chatRooms = <ChatRoom>[];
+  /// List of Friends/Contacts
+  List<UserProfile> _contacts = [];
+  /// Pending Friend Requests
+  List<PendingRequest> _pendingRequests = <PendingRequest>[];
 
+
+  final Auth _auth = Auth();
   final _userStreamController = StreamController<UserProfile>.broadcast();
-
+  final _pendingRequestController = StreamController<List<PendingRequest>>.broadcast();
+  final _chatRoomController = StreamController<List<ChatRoom>>.broadcast();
   static final CollectionReference<Map<String,dynamic>> _userCollection
     = FirebaseFirestore.instance.collection('users');
 
@@ -26,6 +43,9 @@ class SessionData with ChangeNotifier, _SessionCalendarEvents{
 
   Future<void> _populateUserData() async {
     await getAllMeetingEvents();
+    await getPendingRequests();
+    await getContacts();
+    await getChatRooms();
   }
 
   static final SessionData _instance = SessionData._();
@@ -33,6 +53,8 @@ class SessionData with ChangeNotifier, _SessionCalendarEvents{
   static SessionData get instance => _instance;
   UserProfile? get currentUser => _currentUser;
   Stream<UserProfile?> get currentUserStream => _userStreamController.stream;
+  Stream<List<PendingRequest>> get pendingRequests => _pendingRequestController.stream;
+  Stream<List<ChatRoom>> get chatRooms => _chatRoomController.stream;
 
   void updateUser(UserProfile user){
     _currentUser = user;
@@ -61,7 +83,7 @@ class SessionData with ChangeNotifier, _SessionCalendarEvents{
       snapshot.docChanges.forEach((change) {
         try{
           var data = change.doc.data();
-          if(data == null) throw Exception('Null Doc Change received! @refreshCal');
+          if(data == null) throw Exception('Null Doc Change received! @RefreshCal');
           switch(change.type){
             // Since in a map in dart if key is not present, it's added
             // and if it's present, the value is modified
@@ -76,4 +98,104 @@ class SessionData with ChangeNotifier, _SessionCalendarEvents{
       });
     });
   }
+
+
+  Future<void> sendRequest(List<UserProfile> participants) async => _sendChatRequest(_currentUser!, participants);
+  Future<void> acceptRequest(PendingRequest request) async => _acceptPendingRequest(_currentUser!, request);
+  Future<void> getContacts() async {
+    _contacts = await _getAllContacts(_currentUser!.userID);
+    refreshContacts();
+  }
+  Future<void> getPendingRequests() async {
+    _pendingRequests = await _getAllPendingRequest(_currentUser!.userID);
+    _pendingRequestController.add(_pendingRequests);
+    refreshPendingRequests();
+  }
+  Future<void> getChatRooms() async {
+    _chatRooms = await _getAllChatRooms(_currentUser!.userID);
+    _chatRoomController.add(_chatRooms);
+    refreshChatRooms();
+  }
+  Future<void> createRoom(List<UserProfile> participants) async => _createChatRoom(participants);
+
+  void refreshContacts() {
+    final contactsCollection = _userCollection.doc(_currentUser!.userID).collection('contacts');
+    contactsCollection.snapshots().listen((snapshot) {
+      snapshot.docChanges.forEach((change) async {
+        try{
+          var data = change.doc.data();
+          if(data == null) throw Exception('Null Doc Change received! @RefreshContacts');
+          switch(change.type){
+            case DocumentChangeType.added:{
+              UserProfile? user = await _auth.getProfileFromFirebase(data['userID']);
+              if(user != null){
+                _contacts.add(user);
+              }else print('NULL USER VALUE, @RefreshContacts');
+              break;
+            }
+            case DocumentChangeType.modified: break; //This case is invalid in this case
+            case DocumentChangeType.removed: {
+              _contacts.removeWhere((user) => user.userID == data['userID']);
+              break;
+            }
+            default: throw Exception('Invalid Document change type');
+          }
+        }catch(e){
+          print('Exception @RefreshContacts: ${e.toString()}');
+        }
+      });
+    });
+  }
+
+  void refreshPendingRequests() {
+    final requestCollection = _userCollection.doc(_currentUser!.userID).collection('pendingRequests');
+    requestCollection.snapshots().listen((snapshot) {
+      snapshot.docChanges.forEach((change) async {
+        try{
+          var data = change.doc.data();
+          if(data == null) throw Exception('Null Doc Change received! @RefreshContacts');
+          switch(change.type){
+            case DocumentChangeType.added: {
+              _pendingRequests.add(await PendingRequest.fromMap(data));
+              break;
+            }
+            case DocumentChangeType.modified: break; //This case is invalid in this case
+            case DocumentChangeType.removed: {
+              _pendingRequests.removeWhere((request) => request.chatRoomID == data['chatRoomID']);
+              break;
+            }
+          }
+        }catch(e){
+          print('Exception at refreshing PendingRequests: ${e.toString()}');
+        }
+      });
+    });
+  }
+
+  void refreshChatRooms() {
+    final chatRoomCollection = _userCollection.doc(_currentUser!.userID).collection('chatRooms');
+    chatRoomCollection.snapshots().listen((snapshot) {
+      snapshot.docChanges.forEach((change) async {
+        try{
+          var data = change.doc.data();
+          if(data == null) throw Exception('Null Doc Change received! @RefreshContacts');
+          switch(change.type){
+            case DocumentChangeType.added: {
+              _chatRooms.add(await ChatRoom.fromMap(data));
+              break;
+            }
+            case DocumentChangeType.modified: break; //This case is invalid in this case
+            case DocumentChangeType.removed: {
+              _chatRooms.removeWhere((room) => room.roomID == data['roomID']);
+              break;
+            }
+          }
+        }catch(e){
+          print('Exception at Refresh ChatRoom!');
+        }
+      });
+    });
+  }
+
+
 }

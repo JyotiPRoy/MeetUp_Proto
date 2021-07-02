@@ -3,6 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/provider/pexel_img_provider.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:timer_builder/timer_builder.dart';
+
+bool _timeColon = true;
 
 class DateTimeDisplay extends StatelessWidget {
   const DateTimeDisplay({Key? key}) : super(key: key);
@@ -59,34 +62,44 @@ class DateTimeDisplay extends StatelessWidget {
               ),
             ),
           ),
-          Positioned.fill(
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${DateTime.now().hour} : ${DateTime.now().minute}',
-                    style: TextStyle(
-                        color: AppStyle.whiteAccent,
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold
-                    ),
+          TimerBuilder.periodic(
+            const Duration(seconds: 1),
+            builder: (context) {
+              _timeColon = !_timeColon;
+              return Positioned.fill(
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${DateTime.now().hour.toString().padLeft(2, '0')}'
+                            + (_timeColon ?  ' : ' : '   ') +
+                            '${DateTime.now().minute.toString().padLeft(2, '0')}',
+                        style: TextStyle(
+                            color: AppStyle.whiteAccent,
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text(
+                        '${weekDays[DateTime.now().weekday - 1]}, ' /// For some reason Monday = 1 -_-
+                            ' ${DateTime.now().day.toString()}'
+                            ' ${months[DateTime.now().month]} ${DateTime.now().year}',
+                        style: TextStyle(
+                            color: AppStyle.whiteAccent,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold
+                        ),
+                      )
+                    ],
                   ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    'Friday, ${DateTime.now().day} June ${DateTime.now().year}',
-                    style: TextStyle(
-                        color: AppStyle.whiteAccent,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold
-                    ),
-                  )
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
           Positioned(
             right: 15,
@@ -105,3 +118,30 @@ class DateTimeDisplay extends StatelessWidget {
     );
   }
 }
+
+/// Better use this approach than downloading another package
+/// cuz "Surprise" dart DateTime doesn't output month names -_-
+List<String> months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
+];
+
+List<String> weekDays = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday'
+];
