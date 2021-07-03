@@ -3,8 +3,10 @@ part of 'session_data.dart';
 mixin _SessionChatData {
   static final CollectionReference<Map<String, dynamic>> _userCollection =
       FirebaseFirestore.instance.collection('users');
-  final _userNameCollection =
-      FirebaseFirestore.instance.collection('userName-ID');
+
+  final _userNameCollection = FirebaseFirestore.instance.collection('userName-ID');
+  final _globalChatRoomCollection = FirebaseFirestore.instance.collection('chatRooms');
+
   static const String chatRoomsCollection = 'chatRooms';
   static const String pendingRequestsCollection = 'pendingRequests';
   static const contactsCollection = 'contacts';
@@ -54,6 +56,11 @@ mixin _SessionChatData {
     await _userCollection
         .doc(accepter.userID).collection(pendingRequestsCollection).doc(request.chatRoomID).delete();
   }
+
+Future<void> _sendChat(Chat chat, ChatRoom chatRoom) async {
+    var _chatDoc = _globalChatRoomCollection.doc(chatRoom.roomID);
+    await _chatDoc.collection('chats').doc(DateTime.now().toIso8601String()).set(chat.toMap());
+}
 
   Future<List<UserProfile>> _getAllContacts(String userID) async {
     List<UserProfile> contacts = [];

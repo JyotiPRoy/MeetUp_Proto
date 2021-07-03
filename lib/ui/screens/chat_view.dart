@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:ms_engage_proto/ui/widgets/chat_viewer.dart';
 import 'package:ms_engage_proto/ui/widgets/input_field.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ChatView extends StatefulWidget {
   const ChatView({Key? key}) : super(key: key);
@@ -15,6 +19,19 @@ class ChatView extends StatefulWidget {
 class _ChatViewState extends State<ChatView> {
 
   TextEditingController _searchController = TextEditingController();
+  final viewController = BehaviorSubject<ChatRoom?>();
+
+  @override
+  void initState() {
+    super.initState();
+    viewController.add(null);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +59,7 @@ class _ChatViewState extends State<ChatView> {
           child: Column(
             children: [
               InputField(
+                hintText: 'Search for a Contact',
                 controller: _searchController,
                 validator: (val){return null;},
                 fieldName: '',
@@ -55,38 +73,58 @@ class _ChatViewState extends State<ChatView> {
                       if(snapshot.hasData && snapshot.data != null){
                         return Column(
                           children: snapshot.data!.map((chatRoom){
-                            UserProfile user = chatRoom.participants[0];
-                           return Container(
-                             height: 75,
-                             child: Row(
-                               crossAxisAlignment: CrossAxisAlignment.center,
-                               children: [
-                                 Container(
-                                   clipBehavior: Clip.antiAlias,
-                                   width: 50,
-                                   height: 50,
-                                   decoration: BoxDecoration(
-                                     borderRadius: BorderRadius.all(Radius.circular(15)),
-                                     border: Border.all(
-                                       color: AppStyle.defaultBorderColor,
+                            bool isSelected = false;
+                            UserProfile user
+                              = chatRoom.participants.where((user)
+                                => user.userID != SessionData.instance.currentUser!.userID).first;
+                           return Padding(
+                             padding: const EdgeInsets.symmetric(vertical: 8),
+                             child: Material(
+                               color: AppStyle.primaryColor,
+                               borderRadius: BorderRadius.circular(20),
+                               clipBehavior: Clip.hardEdge,
+                               child: InkWell(
+                                 onTap: (){
+                                   viewController.add(chatRoom);
+                                 },
+                                 // splashColor: AppStyle.defaultSplash,
+                                 child: Padding(
+                                   padding: const EdgeInsets.symmetric(horizontal: 16),
+                                   child: Container(
+                                     height: 75,
+                                     child: Row(
+                                       crossAxisAlignment: CrossAxisAlignment.center,
+                                       children: [
+                                         Container(
+                                           clipBehavior: Clip.antiAlias,
+                                           width: 50,
+                                           height: 50,
+                                           decoration: BoxDecoration(
+                                             borderRadius: BorderRadius.all(Radius.circular(15)),
+                                             border: Border.all(
+                                               color: AppStyle.defaultBorderColor,
+                                             ),
+                                             color: AppStyle.secondaryColor,
+                                           ),
+                                           child: user.pfpUrl != null
+                                              ? Image.network(
+                                                  user.pfpUrl!
+                                                )
+                                              : Container(),
+                                         ),
+                                         SizedBox(width: 16,),
+                                         Text(
+                                           user.userName,
+                                           style: TextStyle(
+                                             color: AppStyle.whiteAccent,
+                                             fontSize: 16
+                                           ),
+                                         )
+                                       ],
                                      ),
-                                     color: AppStyle.secondaryColor,
                                    ),
-                                   child: user.pfpUrl != null
-                                      ? Image.network(
-                                          user.pfpUrl!
-                                        )
-                                      : Container(),
                                  ),
-                                 SizedBox(width: 16,),
-                                 Text(
-                                   user.userName,
-                                   style: TextStyle(
-                                     color: AppStyle.whiteAccent,
-                                     fontSize: 16
-                                   ),
-                                 )
-                               ],
+                               ),
                              ),
                            );
                           }
@@ -112,7 +150,9 @@ class _ChatViewState extends State<ChatView> {
         Container(
           width: width * 0.62,
           height: height * 0.87,
-          color: Colors.red,
+          child: ChatViewer(
+            viewController: viewController,
+          ),
         )
       ],
     );

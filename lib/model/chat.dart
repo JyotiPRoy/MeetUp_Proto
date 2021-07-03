@@ -30,13 +30,12 @@ class ChatAttachment{
 /// The attachments are stored in the Firebase storage and the link is stored
 /// under attachments in the Chat doc.
 class Chat{
-  final String userID;
+  final String senderID;
   String? message;
   List<ChatAttachment>? attachments;
-  bool _sent = false;
 
   Chat({
-    required this.userID,
+    required this.senderID,
     this.message,
     this.attachments,
   });
@@ -44,7 +43,7 @@ class Chat{
 
   Map<String,String> toMap(){
     Map<String,String> res = {};
-    res['userID'] = this.userID;
+    res['senderID'] = this.senderID;
     res['message'] = this.message ?? '';
     res['attachments'] = this.attachments != null
         ? jsonEncode(this.attachments!.map((e) => e.toMap()).toList())
@@ -54,7 +53,7 @@ class Chat{
 
   static Chat fromMap(Map map){
     Chat res = Chat(
-      userID: map['userID']!,
+      senderID: map['senderID']!,
       message: map['message'],
     );
     if(map['attachments'] != 'null'){

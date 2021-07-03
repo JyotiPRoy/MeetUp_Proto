@@ -125,6 +125,7 @@ class SessionData
     refreshChatRooms();
   }
   Future<void> createRoom(List<UserProfile> participants) async => _createChatRoom(participants);
+  Future<void> sendChat(Chat chat, ChatRoom chatRoom) async => await _sendChat(chat, chatRoom);
 
   void refreshContacts() {
     final contactsCollection = _userCollection.doc(_currentUser!.userID).collection('contacts');
