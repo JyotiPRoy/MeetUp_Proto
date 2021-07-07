@@ -62,44 +62,38 @@ class DateTimeDisplay extends StatelessWidget {
               ),
             ),
           ),
-          TimerBuilder.periodic(
-            const Duration(seconds: 1),
-            builder: (context) {
-              _timeColon = !_timeColon;
-              return Positioned.fill(
-                child: Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${DateTime.now().hour.toString().padLeft(2, '0')}'
-                            + (_timeColon ?  ' : ' : '   ') +
-                            '${DateTime.now().minute.toString().padLeft(2, '0')}',
-                        style: TextStyle(
-                            color: AppStyle.whiteAccent,
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Text(
-                        '${weekDays[DateTime.now().weekday - 1]}, ' /// For some reason Monday = 1 -_-
-                            ' ${DateTime.now().day.toString()}'
-                            ' ${months[DateTime.now().month]} ${DateTime.now().year}',
-                        style: TextStyle(
-                            color: AppStyle.whiteAccent,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold
-                        ),
-                      )
-                    ],
+          Positioned.fill(
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${DateTime.now().hour.toString().padLeft(2, '0')}'
+                        + ' : ' +
+                        '${DateTime.now().minute.toString().padLeft(2, '0')}',
+                    style: TextStyle(
+                        color: AppStyle.whiteAccent,
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold
+                    ),
                   ),
-                ),
-              );
-            },
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                    '${weekDays[DateTime.now().weekday - 1]}, ' /// For some reason Monday = 1 -_-
+                        ' ${DateTime.now().day.toString()}'
+                        ' ${months[DateTime.now().month]} ${DateTime.now().year}',
+                    style: TextStyle(
+                        color: AppStyle.whiteAccent,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
           Positioned(
             right: 15,

@@ -1,9 +1,9 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:ms_engage_proto/model/meeting_event.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
+import 'package:ms_engage_proto/utils/misc_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AddMeetingEventDialog extends StatefulWidget {
@@ -79,9 +79,15 @@ class _AddMeetingEventDialogState extends State<AddMeetingEventDialog> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               child: DefaultButton(
-                onPress: () {},
+                onPress: () {
+                  MeetingEvent? event = details.currentState!.validateAndCreateEvent();
+                  Navigator.of(context, rootNavigator: true).pop();
+                  if(event != null){
+                    SessionData.instance.addMeetingEvent(event);
+                  }
+                },
                 child: Text(
-                  _pageNumber == 0 ? 'Next' : 'Save',
+                  'Create',
                   style: TextStyle(color: AppStyle.whiteAccent, fontSize: 14),
                 ),
                 padding: EdgeInsets.symmetric(
@@ -120,6 +126,40 @@ class __EventDetailsState extends State<_EventDetails> {
   bool allowAnon = false;
   String? meetingID;
 
+  String _titleHintText = 'Add a Title';
+  TextStyle _titleHintStyle = TextStyle(
+    color: AppStyle.defaultUnselectedColor,
+    fontSize: 18,
+  );
+
+  MeetingEvent? validateAndCreateEvent() {
+    if(titleController.text.isEmpty){
+      setState(() {
+        _titleHintText = 'Title cannot be empty!';
+        _titleHintStyle = _titleHintStyle.copyWith(
+          color: AppStyle.defaultErrorColor
+        );
+      });
+      return null;
+    }
+    return MeetingEvent(
+      roomID: meetingID!,
+      hostID: SessionData.instance.currentUser!.userID,
+      title: titleController.text,
+      start: start,
+      end: end,
+      details: detailsController.text,
+      allowAnon: allowAnon
+    );
+  }
+
+  String _getSecureRndString(){
+    if(meetingID == null){
+      meetingID = MiscUtils.generateSecureRandomString(12);
+    }
+    return meetingID!;
+  }
+
   String _formatTime(DateTime? dateTime) {
     if (dateTime == null) {
       return '- : -';
@@ -131,13 +171,6 @@ class __EventDetailsState extends State<_EventDetails> {
           (dateTime.minute > 10
               ? dateTime.minute.toString()
               : dateTime.minute.toString().padLeft(2, '0'));
-  }
-
-  String _generateSecureRandomString(int length){
-    var random = Random.secure();
-    var values = List<int>.generate(length, (i) =>  random.nextInt(255));
-    meetingID = base64UrlEncode(values).substring(0, (length-0));
-    return meetingID!;
   }
 
   Color _getCheckBoxColor(Set<MaterialState> states) {
@@ -165,7 +198,6 @@ class __EventDetailsState extends State<_EventDetails> {
       end = DateTime.utc(date.year, date.month, date.day, end!.hour, end!.minute);
     }
     start = DateTime.utc(date.year, date.month, date.day, start.hour, start.minute);
-
   }
 
   @override
@@ -194,18 +226,13 @@ class __EventDetailsState extends State<_EventDetails> {
             padding: EdgeInsets.symmetric(horizontal: width * 0.015),
             width: double.infinity,
             height: height * 0.04,
-            child: Expanded(
-              child: TextField(
-                style: TextStyle(color: AppStyle.whiteAccent, fontSize: 18),
-                controller: titleController,
-                decoration: InputDecoration(
-                  hintText: 'Add a Title',
-                  hintStyle: TextStyle(
-                    color: AppStyle.defaultUnselectedColor,
-                    fontSize: 18,
-                  ),
-                  border: InputBorder.none,
-                ),
+            child: TextField(
+              style: TextStyle(color: AppStyle.whiteAccent, fontSize: 18),
+              controller: titleController,
+              decoration: InputDecoration(
+                hintText: _titleHintText,
+                hintStyle: _titleHintStyle,
+                border: InputBorder.none,
               ),
             ),
           ),
@@ -243,7 +270,7 @@ class __EventDetailsState extends State<_EventDetails> {
                         onDaySelected: (selectedDay, focusedDay) {
                           setState(() {
                             date = selectedDay;
-                            // _focusedDay = focusedDay; // update `_focusedDay` here as well
+                            print('SELECTED DAY: ${date.toIso8601String()}');
                           });
                         },
                       ),
@@ -390,67 +417,64 @@ class __EventDetailsState extends State<_EventDetails> {
           //   height: 15,
           // ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Expanded(
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 15,
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Text(
+                      'Meeting ID:',
+                      style: subHeadingStyle,
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    Text(
+                      meetingID ?? _getSecureRndString(),
+                      style: TextStyle(
+                          color:AppStyle.whiteAccent,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold
                       ),
-                      Text(
-                        'Meeting ID:',
-                        style: subHeadingStyle,
-                      ),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      Text(
-                        meetingID ?? _generateSecureRandomString(12),
-                        style: TextStyle(
-                            color:AppStyle.whiteAccent,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold
-                        ),
-                      )
-                    ],
-                  ),
+                    )
+                  ],
                 ),
               ),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30,),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 25,
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Checkbox(
-                            checkColor: AppStyle.whiteAccent,
-                            fillColor: MaterialStateProperty.resolveWith(_getCheckBoxColor),
-                            value: allowAnon,
-                            onChanged: (val){
-                              setState(() {
-                                allowAnon = val ?? false;
-                              });
-                            },
-                          ),
-                          SizedBox(
-                            width: 12,
-                          ),
-                          Text(
-                            'Allow anonymous participants?',
-                            style: subHeadingStyle,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 30,),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 25,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          checkColor: AppStyle.whiteAccent,
+                          fillColor: MaterialStateProperty.resolveWith(_getCheckBoxColor),
+                          value: allowAnon,
+                          onChanged: (val){
+                            setState(() {
+                              allowAnon = val ?? false;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          width: 12,
+                        ),
+                        Text(
+                          'Allow anonymous participants?',
+                          style: subHeadingStyle,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               )
             ],

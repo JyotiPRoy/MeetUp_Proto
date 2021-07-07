@@ -15,7 +15,7 @@ class Auth{
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _userCollection = FirebaseFirestore.instance.collection('users');
   // final _userName_ID_Map = FirebaseFirestore.instance.collection('userName-ID');
-  final _storageReference = FirebaseStorage.instance.ref('user_pfps');
+  final _pfpStorageReference = FirebaseStorage.instance.ref('user_pfps');
   Algolia _algolia = AlgoliaHelper.algolia;
 
   User? currentUser(){
@@ -35,7 +35,7 @@ class Auth{
     // }
     String location = '';
     if(pfp != null){
-      final pfpFile = _storageReference.child('${userID}_pfp.${pfp.extension}');
+      final pfpFile = _pfpStorageReference.child('${userID}_pfp.${pfp.extension}');
       // Uploading the pfp got from local storage as a List of bytes
       // Not providing any metadata for the image as of now
       await pfpFile.putData(pfp.bytes!, SettableMetadata(contentType: lookupMimeType(pfp.name)));
@@ -65,7 +65,6 @@ class Auth{
           userProfile = UserProfile.fromMap(doc.data());
         }
       }
-      print('USER: ${jsonEncode(userProfile!.toMap())}');
       return userProfile;
     }catch(e){
       print('EXCP: ${e.toString()}');

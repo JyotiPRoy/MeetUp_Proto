@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/screens/call_screen_web.dart';
+import 'package:ms_engage_proto/ui/screens/group_call_screen.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 import 'package:ms_engage_proto/ui/widgets/input_field.dart';
 
 class JoinCallDialog extends StatefulWidget {
-  const JoinCallDialog({Key? key}) : super(key: key);
+  final bool isGroupCall;
+
+  const JoinCallDialog({
+    Key? key,
+    required this.isGroupCall
+  }) : super(key: key);
 
   @override
   _JoinCallDialogState createState() => _JoinCallDialogState();
@@ -43,7 +49,9 @@ class _JoinCallDialogState extends State<JoinCallDialog> {
             onPress: (){
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_)
-                  => CallScreenWeb(host: false, roomID: _idController.text))
+                  => widget.isGroupCall
+                      ? GroupCallScreen(roomID: _idController.text)
+                      : CallScreenWeb(host: false, roomID: _idController.text))
               );
             },
             child: Text(

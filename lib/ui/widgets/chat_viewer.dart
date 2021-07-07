@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/model/chat.dart';
@@ -5,6 +6,7 @@ import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/screens/viewmodel/chat_view_model.dart';
+import 'package:ms_engage_proto/ui/widgets/chat_card.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
 class ChatViewer extends StatefulWidget {
@@ -21,6 +23,7 @@ class ChatViewer extends StatefulWidget {
 class _ChatViewerState extends ChatViewModel<ChatViewer> {
 
   TextEditingController _chatTextController = TextEditingController();
+  List<PlatformFile> attachments = [];
 
   @override
   void initState() {
@@ -43,9 +46,20 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
       SessionData.instance.sendChat(Chat(
         senderID: currentUser.userID,
         message: _chatTextController.text,
-      ), chatRoom);
+      ), chatRoom,
+        attachments.isEmpty ? null : attachments
+      );
       setState(() {
         _chatTextController.text = '';
+      });
+    }
+  }
+
+  void _pickAttachments() async {
+    var pickerResult = await FilePicker.platform.pickFiles();
+    if(pickerResult != null){
+      setState(() {
+        attachments = pickerResult.files;
       });
     }
   }
@@ -150,26 +164,10 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                                       maxWidth: width * 0.2,
                                       minWidth: 0
                                     ),
-                                    child: Container(
-                                      margin: EdgeInsets.symmetric(vertical: 6),
-                                      padding: EdgeInsets.all(15),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: isCurrentUser
-                                          ? AppStyle.primaryButtonColor : AppStyle.secondaryColor,
-                                        border: isCurrentUser
-                                            ? null : Border.all(
-                                          color: AppStyle.defaultBorderColor
-                                        )
-                                      ),
-                                      child: Text(
-                                        chat.message!,
-                                        style: TextStyle(
-                                          color: AppStyle.whiteAccent,
-                                          fontSize: 16
-                                        ),
-                                        softWrap: true,
-                                      ),
+                                    child: ChatCard(
+                                      isCurrentUser: isCurrentUser,
+                                      chat: chat,
+                                      other: other,
                                     ),
                                   )
                                 ],
@@ -193,7 +191,6 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                     children: [
                       Expanded(
                         child: TextField(
-                          onSubmitted: (val) => _sendChat(currentUser, snapshot.data!),
                           controller: _chatTextController,
                           style: TextStyle(
                             color: AppStyle.whiteAccent,
@@ -213,6 +210,20 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                       ),
                       SizedBox(
                         width: 6,
+                      ),
+                      DefaultButton(
+                        onPress: () async => _pickAttachments(),
+                        child: Text(
+                          'attach',
+                          style: TextStyle(
+                              color: AppStyle.whiteAccent,
+                              fontSize: 16
+                          ),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                      ),
+                      SizedBox(
+                        width: 16,
                       ),
                       DefaultButton(
                         onPress: () => _sendChat(currentUser, snapshot.data!),

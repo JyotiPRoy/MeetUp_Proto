@@ -45,13 +45,13 @@ class HomeView extends StatelessWidget {
                     subtext: 'Setup a New Meeting',
                     icon: FontAwesomeIcons.video,
                     color: AppStyle.primaryHomeAction,
-                    onTap: () => _showStartCallDialog(context),
+                    onTap: () => _showStartCallDialog(context, false),
                   ),
                   DashboardActionButton(
                     title: 'Join Meeting',
                     subtext: 'Join via Link or Anon',
                     icon: FontAwesomeIcons.solidPlusSquare,
-                    onTap: () => _showJoinDialog(context),
+                    onTap: () => _showJoinDialog(context, false),
                   ),
                   DashboardActionButton(
                     title: 'Schedule Meeting',
@@ -108,12 +108,12 @@ class HomeView extends StatelessWidget {
   }
 }
 
-void _showStartCallDialog(BuildContext context) async {
+void _showStartCallDialog(BuildContext context, bool isGroup) async {
   Dialog startCall = Dialog(
     elevation: 2,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
     backgroundColor: AppStyle.primaryColor,
-    child: StartCallDialog(),
+    child: StartCallDialog(isGroupCall: isGroup,),
   );
   await showDialog<Dialog>(
     context: context,
@@ -121,12 +121,12 @@ void _showStartCallDialog(BuildContext context) async {
   );
 }
 
-void _showJoinDialog(BuildContext context) async {
+void _showJoinDialog(BuildContext context, bool isGroup) async {
   Dialog startCall = Dialog(
     elevation: 2,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
     backgroundColor: AppStyle.primaryColor,
-    child: JoinCallDialog(),
+    child: JoinCallDialog(isGroupCall: isGroup,),
   );
   await showDialog<Dialog>(
     context: context,

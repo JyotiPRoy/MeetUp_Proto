@@ -22,18 +22,19 @@ class InputField extends StatelessWidget {
     this.obscureText = false
   }) : super(key: key);
 
+  OutlineInputBorder _getInputBorder({Color? color})
+    =>  OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(
+            width: 1.5,
+            color: color ?? AppStyle.defaultBorderColor
+        )
+    );
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-
-    BoxDecoration inputFieldDecor = BoxDecoration(
-      color: AppStyle.secondaryColor,
-      borderRadius: BorderRadius.all(Radius.circular(15)),
-      border: Border.all(
-        color: AppStyle.defaultBorderColor,
-      ),
-    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,26 +52,32 @@ class InputField extends StatelessWidget {
         SizedBox(
           height: fieldName != '' ? 8 : 0,
         ),
-        Container(
-          decoration: inputFieldDecor,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12, bottom: 4),
-            child: TextFormField(
-              obscureText: obscureText,
-              controller: controller,
-              validator: (val){
-                return validator.call(val);
-              },
-              style: TextStyle(
-                  color: AppStyle.whiteAccent
+        Padding(
+          padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+          child: TextFormField(
+            obscureText: obscureText,
+            controller: controller,
+            validator: (val){
+              return validator.call(val);
+            },
+            style: TextStyle(
+                color: AppStyle.whiteAccent
+            ),
+            decoration: InputDecoration(
+              enabledBorder: _getInputBorder(),
+              focusedBorder: _getInputBorder(
+                color: AppStyle.whiteAccent.withOpacity(0.6)
               ),
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: hintText ?? '',
-                hintStyle: TextStyle(
-                  color: AppStyle.defaultUnselectedColor
-                )
+              errorBorder: _getInputBorder(
+                color: AppStyle.defaultErrorColor
               ),
+              focusedErrorBorder: _getInputBorder(),
+              fillColor: AppStyle.secondaryColor,
+              border: InputBorder.none,
+              hintText: hintText ?? '',
+              hintStyle: TextStyle(
+                color: AppStyle.defaultUnselectedColor
+              )
             ),
           ),
         )

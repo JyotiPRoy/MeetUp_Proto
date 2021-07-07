@@ -3,6 +3,7 @@ part of 'session_data.dart';
 mixin _SessionChatData {
   static final CollectionReference<Map<String, dynamic>> _userCollection =
       FirebaseFirestore.instance.collection('users');
+  final _fileStorageReference = FirebaseStorage.instance.ref('chatAttachments');
 
   final _userNameCollection = FirebaseFirestore.instance.collection('userName-ID');
   final _globalChatRoomCollection = FirebaseFirestore.instance.collection('chatRooms');
@@ -57,8 +58,23 @@ mixin _SessionChatData {
         .doc(accepter.userID).collection(pendingRequestsCollection).doc(request.chatRoomID).delete();
   }
 
-Future<void> _sendChat(Chat chat, ChatRoom chatRoom) async {
+Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files) async {
     var _chatDoc = _globalChatRoomCollection.doc(chatRoom.roomID);
+    List<ChatAttachment> attachments = [];
+    print(files!.isEmpty);
+    if(files != null && files.isNotEmpty){
+      for(PlatformFile file in files){
+        var fileRef = _fileStorageReference.child(file.name);
+        await fileRef.putData(file.bytes!, SettableMetadata(contentType: lookupMimeType(file.name)));
+        ChatAttachment attachment = ChatAttachment(
+          downloadUrl: await fileRef.getDownloadURL(),
+          fileName: file.name,
+        );
+        print('ATTACHMENT: ${attachment.toMap()}');
+        attachments.add(attachment);
+      }
+      chat.attachments = attachments;
+    }
     await _chatDoc.collection('chats').doc(DateTime.now().toIso8601String()).set(chat.toMap());
 }
 

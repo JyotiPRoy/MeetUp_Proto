@@ -1,24 +1,51 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
 
+// Creating this enum for convenience
+enum AttachmentType {Image, Video, File}
+
+extension AttachmentTypeExtension on AttachmentType {
+
+  static AttachmentType fromString(String type) {
+    AttachmentType val;
+    if(type.contains('image')){
+     val = AttachmentType.Image;
+    }else if(type.contains('video')){
+      val = AttachmentType.Video;
+    }else val = AttachmentType.File;
+    return val;
+  }
+
+  IconData get icon {
+    switch(this){
+      case AttachmentType.Image: return FontAwesomeIcons.fileImage;
+      case AttachmentType.Video: return FontAwesomeIcons.fileVideo;
+      case AttachmentType.File: return FontAwesomeIcons.fileAlt;
+    }
+  }
+
+}
+
 class ChatAttachment{
-  final String path;  // TODO: Determine whether it should be Uri or String
+  final String downloadUrl;  // File can be downloaded from Firebase with this url
   final String fileName; // File Name with extension. Mime type can be determined from this
   ChatAttachment({
-    required this.path,
+    required this.downloadUrl,
     required this.fileName
   });
 
   ChatAttachment.fromMap(Map map)
-  : path = map['path']!,
+  : downloadUrl = map['downloadUrl']!,
     fileName = map['fileName']!;
 
   Map<String,String> toMap(){
     return <String,String>{
-      'path' : this.path,
+      'downloadUrl' : this.downloadUrl,
       'fileName' : this.fileName
     };
   }

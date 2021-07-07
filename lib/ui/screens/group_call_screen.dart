@@ -1,91 +1,85 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:ms_engage_proto/core/Session.dart';
+import 'package:ms_engage_proto/core/group_session.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
-class CallScreenWeb extends StatefulWidget {
-  final bool host;
+class GroupCallScreen extends StatefulWidget {
   final String roomID;
   final String title;
-
-  CallScreenWeb({
+  const GroupCallScreen({
     Key? key,
-    required this.host,
     required this.roomID,
-    this.title = 'Room Title',
+    this.title = 'Group Meeting',
   }) : super(key: key);
 
   @override
-  _CallScreenWebState createState() => _CallScreenWebState();
+  _GroupCallScreenState createState() => _GroupCallScreenState();
 }
 
-class _CallScreenWebState extends State<CallScreenWeb> {
+class _GroupCallScreenState extends State<GroupCallScreen> {
   RTCVideoRenderer _localRenderer = RTCVideoRenderer();
-  RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
-  late CallSession _session;
+  bool _localRendererSet = false;
+  Map<String,RTCVideoRenderer> _remoteRenderers = {};
+  late GroupSession _groupSession;
 
   Widget getVideoView(RTCVideoRenderer renderer) => Expanded(
-        child: Container(
-          child: RTCVideoView(renderer),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-              border: Border.all(
-                  color: AppStyle.defaultBorderColor,
-                  width: 2),
-          ),
-        ),
-      );
+    child: Container(
+      child: RTCVideoView(renderer),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(25)),
+        border: Border.all(
+            color: AppStyle.defaultBorderColor,
+            width: 2),
+      ),
+    ),
+  );
 
   List<Widget> rendererContainer = [];
+
+  void _onAddRemoteStream(MediaStream stream, String id) {
+    var remoteRenderer = RTCVideoRenderer();
+    remoteRenderer.initialize().whenComplete(() {
+      remoteRenderer.srcObject = stream;
+      _remoteRenderers[id] = remoteRenderer;
+    });
+    setState(() {
+      rendererContainer.add(getVideoView(remoteRenderer));
+    });
+  }
+  void _onAddLocalStream(MediaStream stream, String id){
+    if(!_localRendererSet){
+      _localRenderer.initialize().whenComplete((){
+        _localRenderer.srcObject = stream;
+      });
+      setState(() {
+        rendererContainer.add(getVideoView(_localRenderer));
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    final callDoc = FirebaseFirestore.instance
-          .collection('calls').doc(widget.roomID);
-    _initRenderers().then((value) async{
-      _session = CallSession(
-          callDoc: callDoc
-      );
-      _session.onLocalStream = (stream){
-        _localRenderer.srcObject = stream;
-        setState(() {
-          rendererContainer.add(getVideoView(_localRenderer));
-        });
-      };
-      _session.onAddRemoteStream = (stream){
-        print('REMOTE STREAM ADDED!');
-        _remoteRenderer.srcObject = stream;
-        setState(() {
-          rendererContainer.add(getVideoView(_remoteRenderer));
-        });
-      };
-      _session.onRemoveRemoteStream = (stream){
-        _remoteRenderer.srcObject = null;
-        setState(() {});
-      };
-      await _session.initialize(isOffer: widget.host);
-    }).then((value) {
-      widget.host ? _session.makeCall() : _session.answerCall();
-    });
-  }
-
-  Future<void> _initRenderers() async {
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
+    _groupSession = GroupSession(
+      groupSessionID: widget.roomID,
+      onAddRemote: _onAddRemoteStream,
+      onAddLocal: _onAddLocalStream,
+      onRemoveRemote: (stream,id){},
+    );
+    _groupSession.joinCall();
   }
 
   @override
   void dispose() {
-    super.dispose();
-    _remoteRenderer.dispose();
     _localRenderer.dispose();
-    _session.endCall();
+    _remoteRenderers.values.forEach((renderer) {
+      renderer.dispose();
+    });
+    super.dispose();
   }
 
   @override
@@ -176,7 +170,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                     ),
                     buttonColor: AppStyle.secondaryColor,
                     buttonBorder:
-                        BorderSide(color: AppStyle.defaultBorderColor),
+                    BorderSide(color: AppStyle.defaultBorderColor),
                     padding: EdgeInsets.all(25),
                   ),
                   space,
@@ -188,7 +182,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                     ),
                     buttonColor: AppStyle.secondaryColor,
                     buttonBorder:
-                        BorderSide(color: AppStyle.defaultBorderColor),
+                    BorderSide(color: AppStyle.defaultBorderColor),
                     padding: EdgeInsets.all(25),
                   ),
                   space,
@@ -199,7 +193,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                     child: Text(
                       'End Call',
                       style:
-                          TextStyle(color: AppStyle.whiteAccent, fontSize: 18),
+                      TextStyle(color: AppStyle.whiteAccent, fontSize: 18),
                     ),
                     buttonColor: AppStyle.defaultErrorColor,
                     padding: EdgeInsets.symmetric(horizontal: 35, vertical: 25),
@@ -213,7 +207,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                     ),
                     buttonColor: AppStyle.secondaryColor,
                     buttonBorder:
-                        BorderSide(color: AppStyle.defaultBorderColor),
+                    BorderSide(color: AppStyle.defaultBorderColor),
                     padding: EdgeInsets.all(25),
                   ),
                   space,
@@ -225,7 +219,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                     ),
                     buttonColor: AppStyle.secondaryColor,
                     buttonBorder:
-                        BorderSide(color: AppStyle.defaultBorderColor),
+                    BorderSide(color: AppStyle.defaultBorderColor),
                     padding: EdgeInsets.all(25),
                   ),
                   space

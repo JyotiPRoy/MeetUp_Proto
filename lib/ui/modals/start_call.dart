@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/screens/call_screen_web.dart';
+import 'package:ms_engage_proto/ui/screens/group_call_screen.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 import 'package:ms_engage_proto/utils/misc_utils.dart';
 
 class StartCallDialog extends StatelessWidget {
-  const StartCallDialog({Key? key}) : super(key: key);
+  final bool isGroupCall;
+  const StartCallDialog({
+    Key? key,
+    required this.isGroupCall
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +60,10 @@ class StartCallDialog extends StatelessWidget {
                     onPress: (){
                       Navigator.pop(context);
                       Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => CallScreenWeb(host: true, roomID: roomID))
+                          MaterialPageRoute(builder: (_)
+                            => isGroupCall
+                                ? GroupCallScreen(roomID: roomID)
+                                : CallScreenWeb(host: true, roomID: roomID))
                       );
                     },
                     child: Text(

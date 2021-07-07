@@ -9,6 +9,7 @@ import 'package:ms_engage_proto/utils/ui_utils.dart';
 
 class MeetingCalendarEvent extends StatefulWidget {
   final MeetingEvent event;
+  final StreamController<MeetingEvent>? viewController;
   final StreamController<int>? groupController;
   final int? index;
 
@@ -16,6 +17,7 @@ class MeetingCalendarEvent extends StatefulWidget {
     Key? key,
     required this.event,
     this.groupController,
+    this.viewController,
     this.index,
   })  : assert(groupController != null ? index != null : index == null),
         super(key: key);
@@ -50,6 +52,8 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
     var subtextColor = _isSelected
         ? AppStyle.whiteAccent.withOpacity(0.7)
         : AppStyle.defaultUnselectedColor;
+    final isOverdue
+        = widget.event.start.difference(DateTime.now()).inSeconds < 0;
 
     return MouseRegion(
       cursor: widget.groupController != null
@@ -59,6 +63,9 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
         onTap: () {
           if (widget.groupController != null) {
             widget.groupController!.sink.add(widget.index!);
+          }
+          if(widget.viewController != null){
+            widget.viewController!.add(widget.event);
           }
         },
         child: AnimatedContainer(
@@ -106,8 +113,13 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
                     width: 10,
                   ),
                   Text(
-                    'Starts in ${UIUtils.formatTime(dateTime: widget.event.start)}',
-                    style: TextStyle(color: subtextColor, fontSize: 14),
+                    isOverdue
+                      ? 'Past due date'
+                      :'Starts in ${UIUtils.formatTime(dateTime: widget.event.start)}',
+                    style: TextStyle(
+                      color: isOverdue ? AppStyle.defaultErrorColor : subtextColor,
+                      fontSize: 14,
+                    ),
                   )
                 ],
               ),

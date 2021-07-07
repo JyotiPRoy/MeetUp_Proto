@@ -6,20 +6,20 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 /// Callback, when streams are added
 typedef void StreamStateCallback(MediaStream stream);
 
-class Session{
+class CallSession{
 
-  Session({this.sessionID}){
-    callDoc = FirebaseFirestore.instance.collection('calls').doc(sessionID);
-    sessionID = callDoc.id; // Since sessionID can be null (in case of calling)
+  CallSession({required this.callDoc}){
+    // callDoc = FirebaseFirestore.instance.collection('calls').doc(sessionID);
+    // sessionID = callDoc.id; // Since sessionID can be null (in case of calling)
     offerCandidates = callDoc.collection('offerCandidates');
     answerCandidates = callDoc.collection('answerCandidates');
   }
 
-  late String? sessionID;
+  // late String? sessionID;
   RTCPeerConnection? peerConnection;
   List<RTCIceCandidate> remoteCandidates = [];
 
-  late DocumentReference<Map<String,dynamic>> callDoc;
+  final DocumentReference<Map<String,dynamic>> callDoc;
   late CollectionReference<Map<String,dynamic>>? offerCandidates;
   late CollectionReference<Map<String,dynamic>>? answerCandidates;
 

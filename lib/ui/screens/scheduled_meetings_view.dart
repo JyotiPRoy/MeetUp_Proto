@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/modals/add_meeting_event.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
@@ -19,9 +20,9 @@ class ScheduledMeetingsView extends StatefulWidget {
 class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
 
   StreamController<int> listController = StreamController<int>.broadcast();
+  final viewerController = StreamController<MeetingEvent>.broadcast();
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  // StreamController<int> tabController = StreamController<int>.broadcast();
 
   void _showAddEventDialog(BuildContext context) async {
     Dialog signUp = Dialog(
@@ -109,24 +110,37 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
                 ),
                 divider,
                 Expanded(
-                  child: AnimatedList(
-                    key: _listKey,
-                    itemBuilder: (context, index, animation){
-                      return FadeTransition(
-                        opacity: animation.drive(Tween<double>(begin: 0, end: 1)),
+                  child: StreamBuilder<Map<String,MeetingEvent>>(
+                    stream: SessionData.instance.calendarEvents,
+                    builder: (context, snapshot) {
+                      if(snapshot.hasData && snapshot.data!.length > 0){
+                        return AnimatedList(
+                          key: _listKey,
+                          itemBuilder: (context, index, animation){
+                            return FadeTransition(
+                              opacity: animation.drive(Tween<double>(begin: 0, end: 1)),
+                              child: Container(
+                                margin: EdgeInsets.symmetric(vertical: 10),
+                                child: MeetingCalendarEvent(
+                                  groupController: listController,
+                                  index: index,
+                                  event: snapshot.data!.values.elementAt(index),
+                                  viewController: viewerController,
+                                ),
+                              ),
+                            );
+                          },
+                          shrinkWrap: true,
+                          initialItemCount: snapshot.data!.length,
+                          scrollDirection: Axis.vertical,
+                        );
+                      }
+                      return Center(
                         child: Container(
-                          margin: EdgeInsets.symmetric(vertical: 10),
-                          child: MeetingCalendarEvent(
-                            groupController: listController,
-                            index: index,
-                            event: MeetingEvent.fromMap(_scheduledMeetingEvents[index]),
-                          ),
+                          // TODO: Add empty state indicator (pic maybe?)
                         ),
                       );
-                    },
-                    shrinkWrap: true,
-                    initialItemCount: _scheduledMeetingEvents.length,
-                    scrollDirection: Axis.vertical,
+                    }
                   ),
                 ),
               ],
@@ -135,12 +149,12 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
           Expanded(
             child: Container(
               padding: EdgeInsets.only(left: width * 0.08, right: width * 0.12, top: height * 0.06),
-              child: StreamBuilder<int>(
-                stream: listController.stream,
+              child: StreamBuilder<MeetingEvent>(
+                stream: viewerController.stream,
                 builder: (context, snapshot) {
                   if(snapshot.hasData && snapshot.data != null){
                     return ScheduleViewer(
-                      event: MeetingEvent.fromMap(_scheduledMeetingEvents[snapshot.data!]),
+                      event: snapshot.data!,
                     );
                   }
                   return Center(
@@ -159,56 +173,3 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
     );
   }
 }
-
-List<Widget> get scheduledMeetingCards {
-  List<Widget> res = <Widget>[];
-  _scheduledMeetingEvents.forEach((element) {
-    res.add(MeetingCalendarEvent(
-      event: MeetingEvent.fromMap(element),
-    ));
-    res.add(SizedBox(width: 40,));
-  });
-  return res;
-}
-
-final List<Map<String,dynamic>> _scheduledMeetingEvents = [
-  {
-    'hostID': 'XXYZ',
-    'title' : 'Daily Sprint Session',
-    'start' : DateTime(2021,6,29,19,30).toIso8601String(),
-    'end' : DateTime(2021,6,29,21,10).toIso8601String(),
-    'details' : 'Daily meeting to discuss about individual progress in the current sprint',
-    'participants' : [
-
-    ],
-    'allowAnon' : false,
-    'roomID' : '25-6-21-aYtaXjcYk',
-  },
-  {
-    'hostID': 'XXYZ',
-    'title' : 'Design Revision Session',
-    'start' : DateTime(2021,6,30,13,30).toIso8601String(),
-    'end' : DateTime(2021,6,30,15,30).toIso8601String(),
-    'details' : 'Review and make changes to the current System & UI design',
-    'participants' : [
-      'uaZTyCa>LJBchUTU',
-      'aioJTxTyhOqxYjtz',
-      'jugfulDKUTDukyYa',
-    ],
-    'allowAnon' : false,
-    'roomID' : '25-6-21-gJyVxCTkYt',
-  },
-  {
-    'hostID': 'YYYZ',
-    'title' : 'Code Review',
-    'start' : DateTime(2021,7,1,10,30).toIso8601String(),
-    'end' : DateTime(2021,7,1,12,25).toIso8601String(),
-    'details' : 'Code Review with Senior',
-    'participants' : [
-      'uaZTyCa>LJBchUTU',
-      'aioJTxTyhOqxYjtz',
-    ],
-    'allowAnon' : false,
-    'roomID' : '25-6-21-tdRJesTTxU',
-  }
-];
