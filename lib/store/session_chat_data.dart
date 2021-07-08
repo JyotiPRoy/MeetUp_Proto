@@ -61,7 +61,6 @@ mixin _SessionChatData {
 Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files) async {
     var _chatDoc = _globalChatRoomCollection.doc(chatRoom.roomID);
     List<ChatAttachment> attachments = [];
-    print(files!.isEmpty);
     if(files != null && files.isNotEmpty){
       for(PlatformFile file in files){
         var fileRef = _fileStorageReference.child(file.name);
