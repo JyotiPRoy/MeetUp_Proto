@@ -11,6 +11,7 @@ class InputField extends StatelessWidget {
   final RegExp? inputRegExp;
   final String? hintText;
   final bool obscureText;
+  final void Function(String?)? onChanged;
 
   InputField({
     Key? key,
@@ -19,7 +20,8 @@ class InputField extends StatelessWidget {
     required this.fieldName,
     this.inputRegExp,
     this.hintText,
-    this.obscureText = false
+    this.obscureText = false,
+    this.onChanged
   }) : super(key: key);
 
   OutlineInputBorder _getInputBorder({Color? color})
@@ -57,6 +59,7 @@ class InputField extends StatelessWidget {
           child: TextFormField(
             obscureText: obscureText,
             controller: controller,
+            onChanged: onChanged,
             validator: (val){
               return validator.call(val);
             },

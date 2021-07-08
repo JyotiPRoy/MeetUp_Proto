@@ -41,6 +41,9 @@ class _CallScreenWebState extends State<CallScreenWeb> {
         ),
       );
 
+  IconData micIcon = FontAwesomeIcons.microphone;
+  IconData videoIcon = FontAwesomeIcons.microphone;
+
   List<Widget> rendererContainer = [];
 
   @override
@@ -168,10 +171,13 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                 children: [
                   DefaultButton(
                     onPress: () {
-
+                      _session.muteMic();
+                      setState(() {
+                        micIcon = FontAwesomeIcons.microphoneSlash;
+                      });
                     },
                     child: Icon(
-                      FontAwesomeIcons.microphone,
+                      micIcon,
                       color: AppStyle.defaultUnselectedColor,
                     ),
                     buttonColor: AppStyle.secondaryColor,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/modals/join_call.dart';
 import 'package:ms_engage_proto/ui/modals/start_call.dart';
@@ -76,6 +77,7 @@ class HomeView extends StatelessWidget {
             height: height * 0.8,
             width:  width * 0.48,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DateTimeDisplay(),
@@ -83,7 +85,7 @@ class HomeView extends StatelessWidget {
                   height: 50,
                 ),
                 Text(
-                  "Today's Meetings",
+                  "Scheduled Meetings",
                   style: TextStyle(
                       color: AppStyle.whiteAccent,
                       fontSize: 24,
@@ -93,11 +95,43 @@ class HomeView extends StatelessWidget {
                 SizedBox(
                   height: 24,
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: scheduledMeetingCards,
-                  ),
+                StreamBuilder<Map<String,MeetingEvent>>(
+                  stream: SessionData.instance.calendarEvents,
+                  builder: (context, snapshot) {
+                    if(snapshot.hasData && snapshot.data != null){
+                      if(snapshot.data!.isNotEmpty){
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: snapshot.data!.values.map(
+                                (event) => Row(
+                                  children: [
+                                    MeetingCalendarEvent(
+                                      event: event,
+                                    ),
+                                    SizedBox(width: 40,)
+                                  ],
+                                )
+                            ).toList(),
+                          ),
+                        );
+                      }
+                      return Expanded(
+                        child: Container(
+                          // TODO: ADD GRAPHIC
+                        ),
+                      );
+                    }
+                    return Expanded(
+                      child: Container(
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppStyle.whiteAccent,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
                 )
               ],
             ),
@@ -133,56 +167,3 @@ void _showJoinDialog(BuildContext context, bool isGroup) async {
     builder: (context) => startCall,
   );
 }
-
-List<Widget> get scheduledMeetingCards {
-  List<Widget> res = <Widget>[];
-  _scheduledMeetingEvents.forEach((element) {
-    res.add(MeetingCalendarEvent(
-      event: MeetingEvent.fromMap(element),
-    ));
-    res.add(SizedBox(width: 40,));
-  });
-  return res;
-}
-
-final List<Map<String,dynamic>> _scheduledMeetingEvents = [
-  {
-    'hostID': 'XXYZ',
-    'title' : 'Daily Sprint Session',
-    'start' : DateTime(2021,6,29,19,30).toIso8601String(),
-    'end' : DateTime(2021,6,29,21,10).toIso8601String(),
-    'details' : 'Daily meeting to discuss about individual progress in the current sprint',
-    'participants' : [
-
-    ],
-    'allowAnon' : false,
-    'roomID' : '25-6-21-aYtaXjcYk',
-  },
-  {
-    'hostID': 'XXYZ',
-    'title' : 'Design Revision Session',
-    'start' : DateTime(2021,6,30,13,30).toIso8601String(),
-    'end' : DateTime(2021,6,30,15,30).toIso8601String(),
-    'details' : 'Review and make changes to the current System & UI design',
-    'participants' : [
-      'uaZTyCa>LJBchUTU',
-      'aioJTxTyhOqxYjtz',
-      'jugfulDKUTDukyYa',
-    ],
-    'allowAnon' : false,
-    'roomID' : '25-6-21-gJyVxCTkYt',
-  },
-  {
-    'hostID': 'YYYZ',
-    'title' : 'Code Review',
-    'start' : DateTime(2021,7,1,10,30).toIso8601String(),
-    'end' : DateTime(2021,7,1,12,25).toIso8601String(),
-    'details' : 'Code Review with Senior',
-    'participants' : [
-      'uaZTyCa>LJBchUTU',
-      'aioJTxTyhOqxYjtz',
-    ],
-    'allowAnon' : false,
-    'roomID' : '25-6-21-tdRJesTTxU',
-  }
-];

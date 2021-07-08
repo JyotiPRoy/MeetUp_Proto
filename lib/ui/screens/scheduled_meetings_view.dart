@@ -21,8 +21,6 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
 
   StreamController<int> listController = StreamController<int>.broadcast();
   final viewerController = StreamController<MeetingEvent>.broadcast();
-  GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-
 
   void _showAddEventDialog(BuildContext context) async {
     Dialog signUp = Dialog(
@@ -113,31 +111,46 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
                   child: StreamBuilder<Map<String,MeetingEvent>>(
                     stream: SessionData.instance.calendarEvents,
                     builder: (context, snapshot) {
-                      if(snapshot.hasData && snapshot.data!.length > 0){
-                        return AnimatedList(
-                          key: _listKey,
-                          itemBuilder: (context, index, animation){
-                            return FadeTransition(
-                              opacity: animation.drive(Tween<double>(begin: 0, end: 1)),
-                              child: Container(
-                                margin: EdgeInsets.symmetric(vertical: 10),
-                                child: MeetingCalendarEvent(
-                                  groupController: listController,
-                                  index: index,
-                                  event: snapshot.data!.values.elementAt(index),
-                                  viewController: viewerController,
+                      if(snapshot.hasData){
+                        if(snapshot.data!.length > 0){
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index){
+                              return MeetingCalendarEvent(
+                                groupController: listController,
+                                index: index,
+                                event: snapshot.data!.values.elementAt(index),
+                                viewController: viewerController,
+                              );
+                            },
+                          );
+                        }else{
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/images/calendar_event.png',
                                 ),
-                              ),
-                            );
-                          },
-                          shrinkWrap: true,
-                          initialItemCount: snapshot.data!.length,
-                          scrollDirection: Axis.vertical,
-                        );
+                                SizedBox(
+                                  height: 14,
+                                ),
+                                Text(
+                                  "You don't have any events yet.",
+                                  style: TextStyle(
+                                    color: AppStyle.whiteAccent,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        }
                       }
                       return Center(
                         child: Container(
-                          // TODO: Add empty state indicator (pic maybe?)
+
                         ),
                       );
                     }
@@ -157,12 +170,24 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
                       event: snapshot.data!,
                     );
                   }
-                  return Center(
-                    child: Container(
-                      height: 60,
-                      width: 60,
-                      child: CircularProgressIndicator(),
-                    ),
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/images/calendar_event_2x.png',
+                      ),
+                      SizedBox(
+                        height: 14,
+                      ),
+                      Text(
+                        "Click on an event to see more details",
+                        style: TextStyle(
+                            color: AppStyle.whiteAccent,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold
+                        ),
+                      )
+                    ],
                   );
                 }
               ),

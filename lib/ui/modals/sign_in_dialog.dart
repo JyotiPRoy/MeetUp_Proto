@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
@@ -21,6 +22,9 @@ class _SignInDialogState extends State<SignInDialog> {
 
   bool _isLoading = false;
 
+  bool _signInFailed = false;
+  String authErrorMessage = '';
+
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
@@ -31,6 +35,39 @@ class _SignInDialogState extends State<SignInDialog> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  String _handleAuthErrors(FirebaseAuthException e){
+    setState(() {
+      _signInFailed = true;
+      _isLoading = false;
+    });
+    switch (e.code) {
+      case "ERROR_EMAIL_ALREADY_IN_USE":
+      case "account-exists-with-different-credential":
+      case "email-already-in-use":
+        return "Email already used. Go to login page.";
+      case "ERROR_WRONG_PASSWORD":
+      case "wrong-password":
+        return "Wrong email/password combination.";
+      case "ERROR_USER_NOT_FOUND":
+      case "user-not-found":
+        return "No user found with this email.";
+      case "ERROR_USER_DISABLED":
+      case "user-disabled":
+        return "User disabled.";
+      case "ERROR_TOO_MANY_REQUESTS":
+      case "operation-not-allowed":
+        return "Too many requests to log into this account.";
+      case "ERROR_OPERATION_NOT_ALLOWED":
+      case "operation-not-allowed":
+        return "Server error, please try again later.";
+      case "ERROR_INVALID_EMAIL":
+      case "invalid-email":
+        return "Email address is invalid.";
+      default:
+        return "Login failed. Please try again.";
+    }
   }
 
   void _submit() async {
@@ -49,7 +86,10 @@ class _SignInDialogState extends State<SignInDialog> {
         }else print('Null User Returned @Sign In');
       }
     }catch(e){
-      print('EXCP @SignIn: ${e.toString()}');
+      authErrorMessage = _handleAuthErrors(e as FirebaseAuthException);
+      _formKey.currentState!.validate();
+      _signInFailed = false;
+      print(authErrorMessage);
     }
   }
 
@@ -63,38 +103,7 @@ class _SignInDialogState extends State<SignInDialog> {
       height: height * 0.35,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
-        child: _isLoading == true
-          ? Center(
-              child: Container(
-                width: width * 0.22,
-                height: height * 0.35,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: 60,
-                      width: 60,
-                      child: CircularProgressIndicator(
-                        color: AppStyle.whiteAccent,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 24,
-                    ),
-                    Text(
-                      'Signing In',
-                      style: TextStyle(
-                          color: AppStyle.whiteAccent,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            )
-          : SingleChildScrollView(
+        child: SingleChildScrollView(
             child: Form(
                 key: _formKey,
                 child: Column(
@@ -103,11 +112,15 @@ class _SignInDialogState extends State<SignInDialog> {
                     InputField(
                       controller: _emailController,
                       validator: (val){
-                        return val != null
-                            ? emailRegex.hasMatch(val)
+                        if(_signInFailed){
+                          return authErrorMessage;
+                        }else{
+                          return val != null
+                              ? emailRegex.hasMatch(val)
                               ? null
                               : 'PLease enter a valid email address'
-                            : 'email cannot be empty';
+                              : 'email cannot be empty';
+                        }
                       },
                       fieldName: 'Email'
                     ),
@@ -118,11 +131,15 @@ class _SignInDialogState extends State<SignInDialog> {
                       obscureText: true,
                       controller: _passwordController,
                       validator: (val){
-                        return val != null
-                            ? val.length < 8
+                        if(_signInFailed){
+                          return authErrorMessage;
+                        }else {
+                          return val != null
+                              ? val.length < 8
                               ? 'Password cannot be less than 8 Characters long'
                               : null
-                            : 'Password cannot be empty';
+                              : 'Password cannot be empty';
+                        }
                       },
                       fieldName: 'Password',
                     ),
@@ -132,14 +149,18 @@ class _SignInDialogState extends State<SignInDialog> {
                     DefaultButton(
                       fixedSize: Size(width * 0.2, 60),
                       onPress: () => _submit(),
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(
-                          color: AppStyle.whiteAccent,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
+                      child: _isLoading
+                        ? CircularProgressIndicator(
+                            color: AppStyle.primaryColor,
+                          )
+                        : Text(
+                            'Continue',
+                            style: TextStyle(
+                              color: AppStyle.whiteAccent,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
                     )
                   ],
                 ),

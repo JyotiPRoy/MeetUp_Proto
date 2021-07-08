@@ -89,7 +89,7 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
           var data = change.doc.data();
           if(data == null) throw Exception('Null Doc Change received! @RefreshCal');
           switch(change.type){
-            case DocumentChangeType.added:
+            case DocumentChangeType.added: _calendarEvents[data['roomID']] = MeetingEvent.fromMap(data); break;
             case DocumentChangeType.modified: _calendarEvents[data['roomID']] = MeetingEvent.fromMap(data); break;
             case DocumentChangeType.removed: _calendarEvents.remove(data['roomID']); break;
             default: throw Exception('Invalid Document change type');

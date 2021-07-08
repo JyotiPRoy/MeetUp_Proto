@@ -52,7 +52,12 @@ class CallSession{
     _localStream!.getAudioTracks()[0].enabled = !enabled;
   }
 
-  Future<MediaStream> createStream() async{
+  String? _getErrorMessage() {
+
+  }
+
+  Future<MediaStream?> createStream() async{
+    MediaStream? localStream;
     final Map<String, dynamic> mediaConstraints = {
       'audio': true,
       'video': {
@@ -65,8 +70,12 @@ class CallSession{
         'optional': [],
       }
     };
-    MediaStream localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-    onLocalStream!.call(localStream);
+    try{
+      localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      onLocalStream!.call(localStream);
+    }catch(e){
+
+    }
     return localStream;
   }
 

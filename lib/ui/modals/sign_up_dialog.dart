@@ -124,20 +124,19 @@ class _SignUpDialogState extends State<SignUpDialog> {
       optOutOfSearch: _optOutOfSearch,
       shareEmail: _shareEmail,
     );
-    print('User: ${dummyProfile.toMap()}');
     // setState(() {_isLoading = true;});
-    // UserProfile? response = await auth.signUpWithEmail(
-    //   _emailController.text,
-    //   _passwordController.text,
-    //   dummyProfile,
-    //   _pfp != null ? _pfp!.files.first : null,
-    // );
-    // if (response != null) {
-    //   setState(() {_isLoading = false;});
-    //   SessionData.instance.updateUser(response);
-    //   Navigator.of(context).push(MaterialPageRoute(builder: (builder) => Dashboard()));
-    // } else
-    //   print('Null User returned! @DialogBox');
+    UserProfile? response = await auth.signUpWithEmail(
+      _emailController.text,
+      _passwordController.text,
+      dummyProfile,
+      _pfp != null ? _pfp!.files.first : null,
+    );
+    if (response != null) {
+      // setState(() {_isLoading = false;});
+      SessionData.instance.updateUser(response);
+      Navigator.of(context).push(MaterialPageRoute(builder: (builder) => Dashboard()));
+    } else
+      print('Null User returned! @DialogBox');
   }
 
   @override
@@ -273,6 +272,8 @@ class _DetailsPage extends StatelessWidget {
   final TextEditingController userController;
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  bool _userNameExists = false;
+  bool _emailExists = false;
   final _formKey = GlobalKey<FormState>();
 
   _DetailsPage({
@@ -289,16 +290,29 @@ class _DetailsPage extends StatelessWidget {
     }else return false;
   }
 
-  Future<String?> _userNameValidator(String value) async {
+  Future<void> _userNameValidator(String? value) async {
     var snapshot
       = await FirebaseFirestore.instance
           .collection('users')
           .where('userName', isEqualTo: value)
           .limit(1).get();
     if(snapshot.docs.length == 1){
-      return 'Username already exists!';
-    }else return null;
+      _userNameExists = true;
+    }
   }
+
+  Future<void> _emailValidator(String? value) async {
+    var snapshot
+    = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: value)
+        .limit(1).get();
+    if(snapshot.docs.length == 1){
+      _emailExists = true;
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -311,14 +325,10 @@ class _DetailsPage extends StatelessWidget {
             children: [
               InputField(
                 controller: userController,
+                onChanged: (val) async => _userNameValidator(val),
                 validator: (val) {
                   if(val != null && val.isNotEmpty){
-                    String? toReturn;
-                    _userNameValidator(val).then((value) {
-                      toReturn = value;
-                      print('TO RETURN: $toReturn');
-                    });
-                    return toReturn;
+                    return _userNameExists ? 'Username already exists!' : null;
                   }else return 'Username cannot be empty!';
                 },
                 fieldName: 'Username',
@@ -328,12 +338,17 @@ class _DetailsPage extends StatelessWidget {
               ),
               InputField(
                 controller: emailController,
+                onChanged: (val) async => _emailValidator(val),
                 validator: (val){
-                  return val != null
-                      ? emailRegex.hasMatch(val)
-                      ? null
-                      : 'PLease enter a valid email address'
-                      : 'email cannot be empty';
+                  if(_emailExists){
+                    return 'An account with this email already exists';
+                  }else {
+                    return val != null
+                        ? emailRegex.hasMatch(val)
+                        ? null
+                        : 'PLease enter a valid email address'
+                        : 'email cannot be empty';
+                  }
                 },
                 fieldName: 'Email',
               ),

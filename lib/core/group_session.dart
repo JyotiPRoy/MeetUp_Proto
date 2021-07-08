@@ -20,7 +20,9 @@ class GroupSession{
 
   final String groupSessionID;
   final _currentUser = SessionData.instance.currentUser!;
+
   Map<String,CallSession> peerSessions = {};
+
   RTCVideoRenderer? localRenderer;
   final StreamStateCallback onAddRemote, onRemoveRemote, onAddLocal;
 
@@ -68,7 +70,7 @@ class GroupSession{
             final callSession = CallSession(callDoc: change.doc.reference);
             peerSessions[id] = callSession;
             _setStreamStateCallbacks(peerSessions[id]!, id);
-            await Future.delayed(Duration(seconds: 2)); // Sorry :(
+            //await Future.delayed(Duration(seconds: 2)); // Sorry :(
             await peerSessions[id]!.initialize(isOffer: false);
             await peerSessions[id]!.answerCall();
             break;

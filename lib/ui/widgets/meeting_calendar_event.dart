@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 import 'package:ms_engage_proto/utils/ui_utils.dart';
@@ -55,122 +56,127 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
     final isOverdue
         = widget.event.start.difference(DateTime.now()).inSeconds < 0;
 
-    return MouseRegion(
-      cursor: widget.groupController != null
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
-      child: GestureDetector(
-        onTap: () {
-          if (widget.groupController != null) {
-            widget.groupController!.sink.add(widget.index!);
-          }
-          if(widget.viewController != null){
-            widget.viewController!.add(widget.event);
-          }
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: EdgeInsets.all(height * 0.03),
-          width: width * 0.21,
-          height: height * 0.28,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            border: Border.all(color: AppStyle.defaultBorderColor),
-            color: _isSelected
-                ? AppStyle.primaryButtonColor
-                : AppStyle.secondaryColor,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.event.title,
-                style: TextStyle(
-                    color: AppStyle.whiteAccent,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    color: subtextColor,
-                    size: 18,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    '${widget.event.start.hour}:${widget.event.start.minute} - ' +
-                        '${(widget.event.end != null ? widget.event.end!.hour : '')}'
-                            ':${(widget.event.end != null ? widget.event.end!.minute : '')}  |',
-                    style: TextStyle(color: subtextColor, fontSize: 14),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    isOverdue
-                      ? 'Past due date'
-                      :'Starts in ${UIUtils.formatTime(dateTime: widget.event.start)}',
-                    style: TextStyle(
-                      color: isOverdue ? AppStyle.defaultErrorColor : subtextColor,
-                      fontSize: 14,
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 12),
+      child: MouseRegion(
+        cursor: widget.groupController != null
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
+        child: GestureDetector(
+          onTap: () {
+            if (widget.groupController != null) {
+              widget.groupController!.sink.add(widget.index!);
+            }
+            if(widget.viewController != null){
+              widget.viewController!.add(widget.event);
+            }
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: EdgeInsets.all(height * 0.03),
+            width: width * 0.21,
+            height: height * 0.28,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              border: Border.all(color: AppStyle.defaultBorderColor),
+              color: _isSelected
+                  ? AppStyle.primaryButtonColor
+                  : AppStyle.secondaryColor,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.event.title,
+                  style: TextStyle(
+                      color: AppStyle.whiteAccent,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      color: subtextColor,
+                      size: 18,
                     ),
-                  )
-                ],
-              ),
-              Expanded(
-                child: SizedBox(),
-              ),
-              Row(
-                children: [
-                  Text(
-                    '${!_isParticipantListEmpty
-                        ? widget.event.participants!.length.toString() + ' Participants' : 'No Participants'}',
-                    style: TextStyle(color: AppStyle.whiteAccent, fontSize: 18),
-                  ),
-                  Expanded(
-                    child: SizedBox(),
-                  ),
-                  widget.groupController == null
-                      ? Row(
-                          children: [
-                            _isParticipantListEmpty
-                                ? DefaultButton(
-                                    onPress: () {},
-                                    child: Text('Invite'),
-                                    fixedSize: Size(75, 50),
-                                  )
-                                : SizedBox(),
-                            SizedBox(
-                              width: 10,
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      '${widget.event.start.hour}:${widget.event.start.minute} - ' +
+                          '${(widget.event.end != null ? widget.event.end!.hour : '')}'
+                              ':${(widget.event.end != null ? widget.event.end!.minute : '')}  |',
+                      style: TextStyle(color: subtextColor, fontSize: 14),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      isOverdue
+                        ? 'Past due date'
+                        :'Starts in ${UIUtils.formatTime(dateTime: widget.event.start)}',
+                      style: TextStyle(
+                        color: isOverdue ? AppStyle.defaultErrorColor : subtextColor,
+                        fontSize: 14,
+                      ),
+                    )
+                  ],
+                ),
+                Expanded(
+                  child: SizedBox(),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      '${!_isParticipantListEmpty
+                          ? widget.event.participants!.length.toString() + ' Participants' : 'No Participants'}',
+                      style: TextStyle(color: AppStyle.whiteAccent, fontSize: 18),
+                    ),
+                    Expanded(
+                      child: SizedBox(),
+                    ),
+                    widget.groupController == null
+                        ? Row(
+                            children: [
+                              _isParticipantListEmpty
+                                  ? DefaultButton(
+                                      onPress: () {},
+                                      child: Text('Invite'),
+                                      fixedSize: Size(75, 50),
+                                    )
+                                  : SizedBox(),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              DefaultButton(
+                                onPress: () {},
+                                child: Text('Start'),
+                                fixedSize: Size(75, 50),
+                              )
+                            ],
+                          )
+                        : DefaultButton(
+                            onPress: () {
+                              SessionData.instance.deleteMeetingEvent(widget.event);
+                            },
+                            fixedSize: Size(50, 50),
+                            buttonColor: Colors.transparent,
+                            buttonBorder: BorderSide(
+                              color: AppStyle.defaultBorderColor,
                             ),
-                            DefaultButton(
-                              onPress: () {},
-                              child: Text('Start'),
-                              fixedSize: Size(75, 50),
-                            )
-                          ],
-                        )
-                      : DefaultButton(
-                          onPress: () {},
-                          fixedSize: Size(50, 50),
-                          buttonColor: Colors.transparent,
-                          buttonBorder: BorderSide(
-                            color: AppStyle.defaultBorderColor,
+                            child: Icon(
+                              Icons.delete_outline_outlined,
+                              color: subtextColor,
+                            ),
                           ),
-                          child: Icon(
-                            Icons.delete_outline_outlined,
-                            color: subtextColor,
-                          ),
-                        ),
-                ],
-              )
-            ],
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
