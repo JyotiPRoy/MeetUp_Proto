@@ -30,9 +30,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Montserrat',
       ),
-      home: false
-      ? Dashboard()
-      :FutureBuilder(
+      home: FutureBuilder(
         future: Firebase.initializeApp(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -47,7 +45,9 @@ class MyApp extends StatelessWidget {
                       future: auth.getProfileFromFirebase(snapshot.data!.uid),
                       builder: (context, snapshot) {
                         if(snapshot.hasData && snapshot.data != null){
-                          SessionData.instance.updateUser(snapshot.data!);
+                          if(SessionData.instance.currentUser == null){
+                            SessionData.instance.updateUser(snapshot.data!);
+                          }
                           return MultiProvider(
                             providers: [
                               StreamProvider<User?>.value(

@@ -1,10 +1,10 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:http/http.dart' as http;
+import 'package:ms_engage_proto/utils/download_attachment_web.dart';
 
 class ChatCard extends StatelessWidget {
   final bool isCurrentUser;
@@ -76,10 +76,12 @@ class __SingleAttachmentViewerState extends State<_SingleAttachmentViewer> {
     isImage = widget.attachmentType == AttachmentType.Image;
   }
 
-  void _downloadImage(String url) {
-    var anchorElement = AnchorElement(href: url);
-    anchorElement.setAttribute('download', '${widget.attachment.fileName}');
-    anchorElement.click();
+  void _downloadImage() async {
+    // var anchorElement = AnchorElement(href: url);
+    // anchorElement.setAttribute('download', '${widget.attachment.fileName}');
+    // anchorElement.click();
+    // var downloadFunc = DownloadAttachmentWeb();
+    // downloadFunc.download(widget.attachment);
   }
 
   @override
@@ -118,7 +120,7 @@ class __SingleAttachmentViewerState extends State<_SingleAttachmentViewer> {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: isImage
-                ? () => _downloadImage(widget.attachment.downloadUrl) : null,
+                ? () => _downloadImage() : null,
             child: Container(
               height: isImage ? 150 : null,
               width: isImage ? 266 : null,
