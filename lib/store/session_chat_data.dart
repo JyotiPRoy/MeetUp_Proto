@@ -8,6 +8,8 @@ mixin _SessionChatData {
   final _userNameCollection = FirebaseFirestore.instance.collection('userName-ID');
   final _globalChatRoomCollection = FirebaseFirestore.instance.collection('chatRooms');
 
+  final uploadProgressController = StreamController<double>.broadcast();
+
   static const String chatRoomsCollection = 'chatRooms';
   static const String pendingRequestsCollection = 'pendingRequests';
   static const contactsCollection = 'contacts';
@@ -60,11 +62,22 @@ mixin _SessionChatData {
 
 Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files) async {
     var _chatDoc = _globalChatRoomCollection.doc(chatRoom.roomID);
+    int totalBytes = 0, totalBytesSent = 0;
     List<ChatAttachment> attachments = [];
     if(files != null && files.isNotEmpty){
+      files.forEach((file) {
+        totalBytes += file.size;
+        print('TOTAL_BYTES: $totalBytes');
+      });
       for(PlatformFile file in files){
         var fileRef = _fileStorageReference.child(file.name);
-        await fileRef.putData(file.bytes!, SettableMetadata(contentType: lookupMimeType(file.name)));
+        var uploadTask = fileRef.putData(file.bytes!, SettableMetadata(contentType: lookupMimeType(file.name)));
+        uploadTask.snapshotEvents.listen((event) {
+          totalBytesSent += event.bytesTransferred;
+          var transferred = totalBytesSent / totalBytes;
+          uploadProgressController.add(transferred);
+        });
+        await uploadTask;
         ChatAttachment attachment = ChatAttachment(
           downloadUrl: await fileRef.getDownloadURL(),
           fileName: file.name,

@@ -4,6 +4,7 @@ import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:http/http.dart' as http;
+import 'package:ms_engage_proto/ui/modals/attachment_viewer.dart';
 import 'package:ms_engage_proto/utils/download_attachment_web.dart';
 
 class ChatCard extends StatelessWidget {
@@ -16,6 +17,22 @@ class ChatCard extends StatelessWidget {
     required this.chat,
     required this.other,
   }) : super(key: key);
+
+  void showMultiAttachmentDialog(
+      BuildContext context, List<ChatAttachment> attachments) async {
+    Dialog dialog = Dialog(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      backgroundColor: AppStyle.primaryColor,
+      child: MultiAttachmentViewer(
+        attachments: attachments,
+      ),
+    );
+    await showDialog<Dialog>(
+      context: context,
+      builder: (context) => dialog,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +52,37 @@ class ChatCard extends StatelessWidget {
         children: [
           chat.attachments != null && chat.attachments!.isNotEmpty
               ? chat.attachments!.length > 1
-                  ? Container()
-                  : _SingleAttachmentViewer(
+                  ? Column(
+                    children: [
+                      MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () => showMultiAttachmentDialog(
+                                context, chat.attachments!),
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: AppStyle.whiteAccent.withOpacity(0.3),
+                              ),
+                              child: Text(
+                                '${chat.attachments!.length} attachments.',
+                                style: TextStyle(
+                                  color: AppStyle.whiteAccent,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  )
+                  : SingleAttachmentViewer(
                       attachment: chat.attachments!.first,
                       attachmentType: AttachmentTypeExtension.fromString(
                           lookupMimeType(chat.attachments!.first.fileName)!),
@@ -55,19 +101,18 @@ class ChatCard extends StatelessWidget {
   }
 }
 
-class _SingleAttachmentViewer extends StatefulWidget {
+class SingleAttachmentViewer extends StatefulWidget {
   final ChatAttachment attachment;
   final AttachmentType attachmentType;
-  const _SingleAttachmentViewer(
+  const SingleAttachmentViewer(
       {Key? key, required this.attachment, required this.attachmentType})
       : super(key: key);
 
   @override
-  __SingleAttachmentViewerState createState() => __SingleAttachmentViewerState();
+  _SingleAttachmentViewerState createState() => _SingleAttachmentViewerState();
 }
 
-class __SingleAttachmentViewerState extends State<_SingleAttachmentViewer> {
-
+class _SingleAttachmentViewerState extends State<SingleAttachmentViewer> {
   bool isImage = false;
 
   @override
@@ -88,13 +133,16 @@ class __SingleAttachmentViewerState extends State<_SingleAttachmentViewer> {
   Widget build(BuildContext context) {
     Widget child = Container();
     switch (widget.attachmentType) {
-      case AttachmentType.Image: {
+      case AttachmentType.Image:
+        {
           break;
-      }
-      case AttachmentType.Video: {
+        }
+      case AttachmentType.Video:
+        {
           break;
-      }
-      case AttachmentType.File: {
+        }
+      case AttachmentType.File:
+        {
           child = Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -105,13 +153,19 @@ class __SingleAttachmentViewerState extends State<_SingleAttachmentViewer> {
               SizedBox(
                 width: 10,
               ),
-              Text(
-                widget.attachment.fileName,
-                style: TextStyle(fontSize: 16, color: AppStyle.whiteAccent),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 200
+                ),
+                child: Text(
+                  widget.attachment.fileName,
+                  style: TextStyle(fontSize: 16, color: AppStyle.whiteAccent),
+                  overflow: TextOverflow.ellipsis,
+                ),
               )
             ],
           );
-      }
+        }
     }
 
     return Column(
@@ -119,8 +173,7 @@ class __SingleAttachmentViewerState extends State<_SingleAttachmentViewer> {
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
-            onTap: isImage
-                ? () => _downloadImage() : null,
+            onTap: isImage ? () => _downloadImage() : null,
             child: Container(
               height: isImage ? 150 : null,
               width: isImage ? 266 : null,

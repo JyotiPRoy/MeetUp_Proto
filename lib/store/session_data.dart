@@ -45,6 +45,9 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
         _init();
       }
     });
+    uploadProgressController.stream.listen((frac) {
+      print('UPLOAD FRAC: $frac');
+    });
   }
 
   void _initStreams(){
@@ -52,6 +55,7 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
     _chatRoomController.add(_chatRooms);
     _contactsController.add(_contacts);
     _calendarEventsController.add(_calendarEvents);
+    uploadProgressController.add(0.0);
   }
 
   Future<void> _init() async {
@@ -71,6 +75,7 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
   Stream<List<ChatRoom>> get chatRooms => _chatRoomController.stream;
   Stream<List<UserProfile>> get contacts => _contactsController.stream.distinct();
   Stream<Map<String,MeetingEvent>> get calendarEvents => _calendarEventsController.stream;
+  Stream<double> get uploadProgress => uploadProgressController.stream;
 
   void updateUser(UserProfile user){
     print('UPDATE USER CALLED!');

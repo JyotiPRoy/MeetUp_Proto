@@ -167,41 +167,47 @@ class _ContactsViewer extends StatelessWidget {
                 children: snapshot.data!.map((user){
                   return MouseRegion(
                     cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: (){
-                        viewController.add(user);
-                      },
-                      child: Container(
-                        height: 75,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              clipBehavior: Clip.antiAlias,
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                  color: AppStyle.defaultBorderColor,
+                    child: Material(
+                      color: AppStyle.primaryColor,
+                      borderRadius: BorderRadius.circular(20),
+                      clipBehavior: Clip.hardEdge,
+                      child: InkWell(
+                        onTap: (){
+                          viewController.add(user);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          height: 75,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                clipBehavior: Clip.antiAlias,
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                                  border: Border.all(
+                                    color: AppStyle.defaultBorderColor,
+                                  ),
+                                  color: AppStyle.secondaryColor,
                                 ),
-                                color: AppStyle.secondaryColor,
+                                child: user.pfpUrl != null
+                                    ? Image.network(
+                                    user.pfpUrl!
+                                )
+                                    : Container(),
                               ),
-                              child: user.pfpUrl != null
-                                  ? Image.network(
-                                  user.pfpUrl!
+                              SizedBox(width: 16,),
+                              Text(
+                                user.userName,
+                                style: TextStyle(
+                                    color: AppStyle.whiteAccent,
+                                    fontSize: 16
+                                ),
                               )
-                                  : Container(),
-                            ),
-                            SizedBox(width: 16,),
-                            Text(
-                              user.userName,
-                              style: TextStyle(
-                                  color: AppStyle.whiteAccent,
-                                  fontSize: 16
-                              ),
-                            )
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

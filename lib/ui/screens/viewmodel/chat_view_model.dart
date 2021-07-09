@@ -1,5 +1,8 @@
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
@@ -11,12 +14,33 @@ abstract class ChatViewModel<T extends StatefulWidget> extends State<T> {
   List<Chat> chats = <Chat>[];
   final BehaviorSubject<List<Chat>> chatStreamController = BehaviorSubject<List<Chat>>();
   final scrollController = ScrollController();
+  TextEditingController chatTextController = TextEditingController();
+  final visibilityController = StreamController<bool>.broadcast();
+  final attachmentController = StreamController<List<PlatformFile>>.broadcast();
+  bool _isVisible = false;
+
+  List<PlatformFile> attachments = [];
+
+  void toggleVisibility(){
+    _isVisible = !_isVisible;
+    visibilityController.add(_isVisible);
+  }
 
   void init(ChatRoom? chatRoom){
+    visibilityController.add(_isVisible);
+    attachmentController.add(attachments);
     if(chatRoom != null){
       chatStreamController.add(chats);
       pullAndRefreshChats(chatRoom);
     }
+    attachmentController.stream.listen((newAttachments) {
+      if(newAttachments.length == 0){
+        visibilityController.add(false);
+      }
+      setState(() {
+        attachments = newAttachments;
+      });
+    });
   }
 
   void pullAndRefreshChats(ChatRoom chatRoom){

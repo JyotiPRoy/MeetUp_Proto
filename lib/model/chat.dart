@@ -59,11 +59,13 @@ class ChatAttachment{
 class Chat{
   final String senderID;
   String? message;
+  String? replyTo;
   List<ChatAttachment>? attachments;
 
   Chat({
     required this.senderID,
     this.message,
+    this.replyTo,
     this.attachments,
   });
         // assert(message != null && attachments!.length != 0);
@@ -72,6 +74,7 @@ class Chat{
     Map<String,String> res = {};
     res['senderID'] = this.senderID;
     res['message'] = this.message ?? '';
+    res['replyTo'] = this.replyTo ?? '';
     res['attachments'] = this.attachments != null
         ? jsonEncode(this.attachments!.map((e) => e.toMap()).toList())
         : jsonEncode(null);
