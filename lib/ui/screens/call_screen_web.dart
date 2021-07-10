@@ -31,6 +31,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
   RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   late CallSession _session;
   final chatViewController = StreamController<SessionChat>.broadcast();
+  double _chatWindowWidth = 0.0;
 
   Widget getVideoView(RTCVideoRenderer renderer) => Expanded(
         child: Container(
@@ -150,7 +151,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                       SizedBox(
                         height: 4,
                       ),
-                      Text(
+                      SelectableText(
                         'RoomID: ${widget.roomID}',
                         style: TextStyle(
                             color: AppStyle.defaultUnselectedColor,
@@ -162,7 +163,12 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                     child: SizedBox(),
                   ),
                   DefaultButton(
-                    onPress: (){},
+                    onPress: (){
+                      setState(() {
+                        _chatWindowWidth
+                          = _chatWindowWidth > 0 ? 0.0 : width * 0.2;
+                      });
+                    },
                     child: Icon(
                       FontAwesomeIcons.commentAlt,
                       color: AppStyle.whiteAccent,
@@ -203,9 +209,12 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                       children: rendererContainer,
                     ),
                   ),
-                  Container(
-                    width: width * 0.22,
-                    // color: Colors.red,
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: _chatWindowWidth,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 22),
+                    color: AppStyle.primaryColor,
                     child: ChatViewer(
                       viewController: chatViewController.stream,
                     ),

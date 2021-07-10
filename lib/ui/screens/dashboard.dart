@@ -16,8 +16,6 @@ import 'package:ms_engage_proto/ui/widgets/nav_toggle_button.dart';
 import 'package:ms_engage_proto/ui/widgets/pending_requests_view.dart';
 import 'package:ms_engage_proto/ui/widgets/search_widget.dart';
 
-
-
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
@@ -27,24 +25,20 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   // ignore: close_sinks
-  StreamController<int> toggleGroupController = StreamController<int>.broadcast();
+  StreamController<int> toggleGroupController =
+      StreamController<int>.broadcast();
   set currentButton(int i) => toggleGroupController.sink.add(i);
 
   String _currentPageTitle = 'Home';
   List<Widget> pages = <Widget>[];
-  List<String> pageTitles = [
-    'Home',
-    'Chat',
-    'Contacts',
-    'Scheduled Meetings'
-  ];
+  List<String> pageTitles = ['Home', 'Chat', 'Contacts', 'Scheduled Meetings'];
 
   Widget? _switcherChild;
 
-  set switcherChild(int index) => setState((){
-    _switcherChild = pages[index];
-    _currentPageTitle = pageTitles[index];
-  });
+  set switcherChild(int index) => setState(() {
+        _switcherChild = pages[index];
+        _currentPageTitle = pageTitles[index];
+      });
 
   @override
   void initState() {
@@ -81,8 +75,8 @@ class _DashboardState extends State<Dashboard> {
           children: [
             Container(
               decoration: BoxDecoration(
-                  border: Border(right: BorderSide(color: AppStyle.darkBorderColor))
-              ),
+                  border: Border(
+                      right: BorderSide(color: AppStyle.darkBorderColor))),
               padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -94,13 +88,16 @@ class _DashboardState extends State<Dashboard> {
                       color: AppStyle.primaryButtonColor,
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                    child: Icon(FontAwesomeIcons.video, color: AppStyle.whiteAccent,),
+                    child: Icon(
+                      FontAwesomeIcons.video,
+                      color: AppStyle.whiteAccent,
+                    ),
                   ),
                   SizedBox(
                     height: height * 0.08,
                   ),
                   NavToggleButton(
-                    onTap: (){
+                    onTap: () {
                       currentButton = 0;
                       switcherChild = 0;
                     },
@@ -115,7 +112,7 @@ class _DashboardState extends State<Dashboard> {
                     height: 16,
                   ),
                   NavToggleButton(
-                    onTap: (){
+                    onTap: () {
                       currentButton = 1;
                       switcherChild = 1;
                     },
@@ -129,7 +126,7 @@ class _DashboardState extends State<Dashboard> {
                     height: 16,
                   ),
                   NavToggleButton(
-                    onTap: (){
+                    onTap: () {
                       currentButton = 2;
                       switcherChild = 2;
                     },
@@ -144,7 +141,7 @@ class _DashboardState extends State<Dashboard> {
                     height: 16,
                   ),
                   NavToggleButton(
-                    onTap: (){
+                    onTap: () {
                       currentButton = 3;
                       switcherChild = 3;
                     },
@@ -156,16 +153,15 @@ class _DashboardState extends State<Dashboard> {
                   ),
                   Expanded(child: SizedBox()),
                   DefaultButton(
-                    onPress: (){},
+                    onPress: () {},
                     fixedSize: Size(60, 60),
                     child: Icon(
                       FontAwesomeIcons.cog,
                       color: AppStyle.whiteAccent,
                     ),
                     buttonColor: AppStyle.secondaryColor,
-                    buttonBorder: BorderSide(
-                      color: AppStyle.defaultBorderColor
-                    ),
+                    buttonBorder:
+                        BorderSide(color: AppStyle.defaultBorderColor),
                   )
                 ],
               ),
@@ -182,11 +178,10 @@ class _DashboardState extends State<Dashboard> {
                         decoration: BoxDecoration(
                             border: Border(
                                 bottom: BorderSide(
-                                  color: AppStyle.darkBorderColor,
-                                )
-                            )
-                        ),
-                        padding: EdgeInsets.only(left: width * 0.045, right: 40),
+                          color: AppStyle.darkBorderColor,
+                        ))),
+                        padding:
+                            EdgeInsets.only(left: width * 0.045, right: 40),
                         width: double.infinity,
                         height: height * 0.1,
                         child: Row(
@@ -206,43 +201,46 @@ class _DashboardState extends State<Dashboard> {
                             ),
                             StreamBuilder<UserProfile?>(
                               stream: SessionData.instance.currentUserStream,
-                              builder: (context, snapshot){
+                              builder: (context, snapshot) {
                                 UserProfile? user = snapshot.data;
-                                if(user != null){
-                                  print('PFP URL: ${user.pfpUrl}');
-                                }
                                 return Container(
-                                  clipBehavior: Clip.antiAlias,
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                                    border: Border.all(
-                                      color: AppStyle.defaultBorderColor,
+                                    clipBehavior: Clip.antiAlias,
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(15)),
+                                      border: Border.all(
+                                        color: AppStyle.defaultBorderColor,
+                                      ),
+                                      color: AppStyle.secondaryColor,
                                     ),
-                                    color: AppStyle.secondaryColor,
-                                  ),
-                                  child: snapshot.hasData
-                                        ? (user!.pfpUrl != null || user.pfpUrl != '')
+                                    child: snapshot.hasData
+                                        ? (user!.pfpUrl != null &&
+                                                user.pfpUrl != '' &&
+                                                user.pfpUrl != 'null')
                                             ? Image.network(
                                                 user.pfpUrl!,
                                                 fit: BoxFit.contain,
-                                                filterQuality: FilterQuality.medium,
+                                                filterQuality:
+                                                    FilterQuality.medium,
                                                 height: 58,
                                                 width: 58,
                                               )
                                             : Center(
-                                                child: CircularProgressIndicator(
-                                                  color: AppStyle.defaultUnselectedColor,
+                                                child: Icon(
+                                                  FontAwesomeIcons.user,
+                                                  color: AppStyle
+                                                      .defaultUnselectedColor,
                                                 ),
                                               )
                                         : Center(
                                             child: Icon(
                                               FontAwesomeIcons.user,
-                                              color: AppStyle.defaultUnselectedColor,
+                                              color: AppStyle
+                                                  .defaultUnselectedColor,
                                             ),
-                                          )
-                                );
+                                          ));
                               },
                             )
                           ],

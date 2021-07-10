@@ -80,8 +80,6 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
     );
 
     return Container(
-      padding: EdgeInsets.symmetric(
-          horizontal: width * 0.04, vertical: height * 0.03),
       child: StreamBuilder<ChatRoom?>(
         stream: widget.viewController,
         builder: (context, snapshot) {
@@ -185,10 +183,10 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                                     child: ChatCard(
                                       isCurrentUser: isCurrentUser,
                                       chat: chat,
-                                      other:
-                                        snapshot.data is !SessionChat
-                                        ? null
-                                        : other,
+                                      other: other,
+                                        // snapshot.data is !SessionChat
+                                        // ? null
+                                        // : other,
                                     ),
                                   )
                                 ],

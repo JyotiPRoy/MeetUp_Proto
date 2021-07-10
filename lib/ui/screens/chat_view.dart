@@ -150,6 +150,8 @@ class _ChatViewState extends State<ChatView> {
         Container(
           width: width * 0.62,
           height: height * 0.87,
+          padding: EdgeInsets.symmetric(
+              horizontal: width * 0.04, vertical: height * 0.03),
           child: ChatViewer(
             viewController: viewController,
           ),

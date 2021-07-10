@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
@@ -43,28 +44,28 @@ class HomeView extends StatelessWidget {
                 children: [
                   DashboardActionButton(
                     title: 'New Meeting',
-                    subtext: 'Setup a New Meeting',
+                    subtext: 'A New Peer to Peer Meeting',
                     icon: FontAwesomeIcons.video,
                     color: AppStyle.primaryHomeAction,
                     onTap: () => _showStartCallDialog(context, false),
                   ),
                   DashboardActionButton(
                     title: 'Join Meeting',
-                    subtext: 'Join via Link or Anon',
+                    subtext: 'Join a Peer to Peer Meeting',
                     icon: FontAwesomeIcons.solidPlusSquare,
                     onTap: () => _showJoinDialog(context, false),
                   ),
                   DashboardActionButton(
-                    title: 'Schedule Meeting',
-                    subtext: 'Plan your Meetings',
-                    icon: FontAwesomeIcons.solidClock,
-                    onTap: () => _showJoinDialog(context, true),
+                    title: 'Create a Video Room',
+                    subtext: 'Setup a group call',
+                    icon: CupertinoIcons.person_add_solid,
+                    onTap: () => _showStartCallDialog(context, true),
                   ),
                   DashboardActionButton(
-                    title: 'Share Screen',
-                    subtext: 'Present your Work',
-                    icon: FontAwesomeIcons.share,
-                    onTap: () => _showStartCallDialog(context, true),
+                    title: 'Join a Video Room',
+                    subtext: 'Join a group video call',
+                    icon: CupertinoIcons.person_2_fill,
+                    onTap: () => _showJoinDialog(context, true),
                   ),
                 ],
               ),

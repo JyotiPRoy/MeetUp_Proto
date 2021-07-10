@@ -38,13 +38,15 @@ class GroupSession{
     var snapshot = await _peersCollection.get();
     if(snapshot.docs.isNotEmpty){
       for(QueryDocumentSnapshot docSnap in snapshot.docs){
-        var callDoc = docSnap.reference
-            .collection('connections').doc(_currentUser.userID);
-        final callSession = CallSession(callDoc: callDoc);
-        peerSessions[docSnap.id] = callSession;
-        _setStreamStateCallbacks(peerSessions[docSnap.id]!, docSnap.id);
-        await peerSessions[docSnap.id]!.initialize(isOffer: true);
-        peerSessions[docSnap.id]!.makeCall();
+       if(docSnap.id != _currentUser.userID){
+         var callDoc = docSnap.reference
+             .collection('connections').doc(_currentUser.userID);
+         final callSession = CallSession(callDoc: callDoc);
+         peerSessions[docSnap.id] = callSession;
+         _setStreamStateCallbacks(peerSessions[docSnap.id]!, docSnap.id);
+         await peerSessions[docSnap.id]!.initialize(isOffer: true);
+         peerSessions[docSnap.id]!.makeCall();
+       }
       }
     }
     await _peersCollection.doc(_currentUser.userID).set(
@@ -64,24 +66,26 @@ class GroupSession{
       colSnap.docChanges.forEach((change) async {
         var data = change.doc.data();
         var id = change.doc.id;
-        if(data == null) throw Exception('Null Data @PeerWatcher');
-        switch(change.type){
-          case DocumentChangeType.added: {
-            final callSession = CallSession(callDoc: change.doc.reference);
-            peerSessions[id] = callSession;
-            _setStreamStateCallbacks(peerSessions[id]!, id);
-            //await Future.delayed(Duration(seconds: 2)); // Sorry :(
-            await peerSessions[id]!.initialize(isOffer: false);
-            await peerSessions[id]!.answerCall();
-            break;
-          }
-          case DocumentChangeType.modified:{
-            break;
-          }
-          case DocumentChangeType.removed: {
-            peerSessions[id]!.endCall();
-            // TODO: Maybe even remove the Renderer/VideoView
-            break;
+        if(id != _currentUser.userID && !peerSessions.keys.contains(id)){
+          if(data == null) throw Exception('Null Data @PeerWatcher');
+          switch(change.type){
+            case DocumentChangeType.added: {
+              final callSession = CallSession(callDoc: change.doc.reference);
+              peerSessions[id] = callSession;
+              _setStreamStateCallbacks(peerSessions[id]!, id);
+              //await Future.delayed(Duration(seconds: 2)); // Sorry :(
+              await peerSessions[id]!.initialize(isOffer: false);
+              await peerSessions[id]!.answerCall();
+              break;
+            }
+            case DocumentChangeType.modified:{
+              break;
+            }
+            case DocumentChangeType.removed: {
+              peerSessions[id]!.endCall();
+              // TODO: Maybe even remove the Renderer/VideoView
+              break;
+            }
           }
         }
       });

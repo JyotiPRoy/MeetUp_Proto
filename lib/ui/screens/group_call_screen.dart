@@ -58,6 +58,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
       setState(() {
         rendererContainer.add(getVideoView(_localRenderer));
       });
+      _localRendererSet = true;
     }
   }
 

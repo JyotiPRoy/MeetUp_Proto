@@ -34,6 +34,7 @@ class CallSession{
 
   final String currentUserID = SessionData.instance.currentUser!.userID;
   final sessionChatController = StreamController<SessionChat>.broadcast();
+  Map<String,UserProfile> _participants = {};
 
   MediaStream? _localStream;
   List<MediaStream>? _remoteStreams;
@@ -59,36 +60,41 @@ class CallSession{
 
   void _listenForParticipants() {
     Auth auth = Auth();
+    bool wasModified = false;
     participantsCollection!.snapshots().listen((snapshot) {
-      List<UserProfile> _participants = [];
       snapshot.docChanges.forEach((change) async{
        try{
-         var data = change.doc.data();
-         if(data == null) throw Exception('Null Participant');
-         switch(change.type){
-           case DocumentChangeType.added :{
-             final user = await auth.getProfileFromFirebase(data['id']);
-             if(user != null){
-               _participants.add(user);
-             }else throw Exception('Null User received from Firebase!');
-             break;
-           }
-           case DocumentChangeType.modified : break;
-           case DocumentChangeType.removed :{
-             break;
+         if(!_participants.keys.contains(change.doc.id)){
+           var data = change.doc.data();
+           if(data == null) throw Exception('Null Participant');
+           switch(change.type){
+             case DocumentChangeType.added :{
+               final user = await auth.getProfileFromFirebase(data['id']);
+               if(user != null){
+                 _participants[user.userID] = user;
+                 wasModified = true;
+               }else throw Exception('Null User received from Firebase!');
+               break;
+             }
+             case DocumentChangeType.modified : break;
+             case DocumentChangeType.removed :{
+               break;
+             }
            }
          }
        }catch(e) {
          print('Error at listening for Participants: ${e.toString()}');
        }
       });
-      sessionChatController.add(
-        SessionChat(
-          roomID: this.callDoc.id,
-          participants: _participants,
-          dateTime: DateTime.now(),
-        )
-      );
+      if(wasModified){
+        sessionChatController.add(
+            SessionChat(
+              roomID: this.callDoc.id,
+              participants: _participants.values.toList(),
+              dateTime: DateTime.now(),
+            )
+        );
+      }
     });
   }
 
