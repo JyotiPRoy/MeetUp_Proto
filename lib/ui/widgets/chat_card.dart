@@ -10,12 +10,12 @@ import 'package:ms_engage_proto/utils/download_attachment_web.dart';
 class ChatCard extends StatelessWidget {
   final bool isCurrentUser;
   final Chat chat;
-  final UserProfile other;
+  final UserProfile? other;
   const ChatCard({
     Key? key,
     required this.isCurrentUser,
     required this.chat,
-    required this.other,
+    this.other,
   }) : super(key: key);
 
   void showMultiAttachmentDialog(
@@ -50,6 +50,19 @@ class ChatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          other != null
+          ? Container(
+            margin: EdgeInsets.symmetric(vertical: 6),
+            child: Text(
+              isCurrentUser ? 'You' : other!.userName,
+              style: TextStyle(
+                color: AppStyle.whiteAccent,
+                fontSize: 14,
+                fontWeight: FontWeight.bold
+              ),
+            ),
+          )
+          : SizedBox(),
           chat.attachments != null && chat.attachments!.isNotEmpty
               ? chat.attachments!.length > 1
                   ? Column(

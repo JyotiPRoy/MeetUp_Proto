@@ -86,18 +86,22 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
         stream: widget.viewController,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
-            // TODO: Apply better solution later
             UserProfile currentUser = SessionData.instance.currentUser!;
-            UserProfile other = snapshot.data!.participants
-                .where((user) => user.userID != currentUser.userID)
-                .first;
+            UserProfile? other;
+            if(snapshot.data is !SessionChat){
+              other = snapshot.data!.participants
+              .where((user) => user.userID != currentUser.userID)
+              .first;
+            }
+
             return Column(
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
+                    other == null ? SizedBox()
+                   : Container(
                         height: 75,
                         width: 75,
                         decoration: BoxDecoration(
@@ -125,7 +129,8 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          other.userName,
+                          other == null ? 'Chat'
+                          : other.userName,
                           style: TextStyle(
                               color: AppStyle.whiteAccent,
                               fontSize: 20,
@@ -134,9 +139,10 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                         SizedBox(
                           height: 4,
                         ),
-                        Text(
-                          other.email!,
-                          style:
+                        other == null ? SizedBox()
+                        : Text(
+                            other.email!,
+                            style:
                               TextStyle(color: AppStyle.defaultUnselectedColor),
                         )
                       ],
@@ -179,7 +185,10 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                                     child: ChatCard(
                                       isCurrentUser: isCurrentUser,
                                       chat: chat,
-                                      other: other,
+                                      other:
+                                        snapshot.data is !SessionChat
+                                        ? null
+                                        : other,
                                     ),
                                   )
                                 ],
@@ -190,8 +199,8 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                       }
                       return Center(
                         child: Container(
-                            // TODO: Add Something
-                            ),
+
+                        ),
                       );
                     },
                   ),
@@ -215,7 +224,7 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                           maxLines: null,
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'Message ${other.userName}',
+                            hintText: 'Message ${other == null ? '' : other.userName}',
                             hintStyle: TextStyle(
                                 color: AppStyle.defaultUnselectedColor,
                                 fontSize: 14),

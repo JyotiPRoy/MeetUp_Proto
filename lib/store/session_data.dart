@@ -40,8 +40,6 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
   SessionData._(){
     currentUserStream.listen((user) {
       if(user != null){
-        print('USERNAME: ${user.userName}');
-        print('CALLED INIT!');
         _init();
       }
     });
@@ -78,7 +76,6 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
   Stream<double> get uploadProgress => uploadProgressController.stream;
 
   void updateUser(UserProfile user){
-    print('UPDATE USER CALLED!');
     _currentUser = user;
     _userStreamController.add(_currentUser!);
   }

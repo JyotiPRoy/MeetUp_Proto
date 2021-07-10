@@ -1,7 +1,13 @@
 
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:ms_engage_proto/model/chat.dart';
+import 'package:ms_engage_proto/model/user.dart';
+import 'package:ms_engage_proto/services/auth.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 
 /// Callback, when streams are added
 typedef void StreamStateCallback(MediaStream stream);
@@ -13,6 +19,8 @@ class CallSession{
     // sessionID = callDoc.id; // Since sessionID can be null (in case of calling)
     offerCandidates = callDoc.collection('offerCandidates');
     answerCandidates = callDoc.collection('answerCandidates');
+    participantsCollection = callDoc.collection('participants');
+    _listenForParticipants();
   }
 
   // late String? sessionID;
@@ -20,8 +28,12 @@ class CallSession{
   List<RTCIceCandidate> remoteCandidates = [];
 
   final DocumentReference<Map<String,dynamic>> callDoc;
-  late CollectionReference<Map<String,dynamic>>? offerCandidates;
-  late CollectionReference<Map<String,dynamic>>? answerCandidates;
+  CollectionReference<Map<String,dynamic>>? offerCandidates;
+  CollectionReference<Map<String,dynamic>>? answerCandidates;
+  CollectionReference<Map<String,dynamic>>? participantsCollection;
+
+  final String currentUserID = SessionData.instance.currentUser!.userID;
+  final sessionChatController = StreamController<SessionChat>.broadcast();
 
   MediaStream? _localStream;
   List<MediaStream>? _remoteStreams;
@@ -44,6 +56,41 @@ class CallSession{
       {'DtlsSrtpKeyAgreement': true},
     ]
   };
+
+  void _listenForParticipants() {
+    Auth auth = Auth();
+    participantsCollection!.snapshots().listen((snapshot) {
+      List<UserProfile> _participants = [];
+      snapshot.docChanges.forEach((change) async{
+       try{
+         var data = change.doc.data();
+         if(data == null) throw Exception('Null Participant');
+         switch(change.type){
+           case DocumentChangeType.added :{
+             final user = await auth.getProfileFromFirebase(data['id']);
+             if(user != null){
+               _participants.add(user);
+             }else throw Exception('Null User received from Firebase!');
+             break;
+           }
+           case DocumentChangeType.modified : break;
+           case DocumentChangeType.removed :{
+             break;
+           }
+         }
+       }catch(e) {
+         print('Error at listening for Participants: ${e.toString()}');
+       }
+      });
+      sessionChatController.add(
+        SessionChat(
+          roomID: this.callDoc.id,
+          participants: _participants,
+          dateTime: DateTime.now(),
+        )
+      );
+    });
+  }
 
   void switchCamera() => Helper.switchCamera(_localStream!.getVideoTracks()[0]);
 
@@ -125,6 +172,7 @@ class CallSession{
     this.peerConnection!.setLocalDescription(offerDesc);
 
     await callDoc.set(offerDesc.toMap());
+    await participantsCollection!.doc(currentUserID).set({'id' : currentUserID});
 
     //Listen for an answer
     callDoc.snapshots().listen((snapshot) async {
@@ -166,6 +214,7 @@ class CallSession{
     await this.peerConnection!.setLocalDescription(answerDesc);
 
     await callDoc.update(answerDesc.toMap());
+    await participantsCollection!.doc(currentUserID).set({'id' : currentUserID});
 
     offerCandidates!.snapshots().listen((snapshot) {
       snapshot.docChanges.forEach((change) {

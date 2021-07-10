@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/model/user.dart';
@@ -98,6 +97,7 @@ class Chat{
   }
 }
 
+/// This class stores the data required to setup and run a ChatRoom
 class ChatRoom {
   String roomID;
   List<UserProfile> participants;
@@ -132,6 +132,47 @@ class ChatRoom {
    };
 }
 
+/// SessionChat is the chat during an ongoing call
+class SessionChat extends ChatRoom{
+  String? title;
+  DateTime dateTime;
+
+  SessionChat({
+    required String roomID,
+    required List<UserProfile> participants,
+    required this.dateTime,
+    this.title
+  }) : super(roomID: roomID, participants: participants);
+
+  static Future<SessionChat> fromMap(Map map) async {
+    Auth auth = Auth();
+    List<UserProfile> _participants = [];
+    for(String participantID in map['participants']){
+      UserProfile? user = await auth.getProfileFromFirebase(participantID);
+      if(user != null){
+        _participants.add(user);
+      }else throw Exception('Null User @ChatRoom -> fromMap()');
+    }
+    return SessionChat(
+        roomID: map['roomID'],
+        participants: _participants,
+        dateTime: DateTime.parse(map['dateTime']),
+        title: map['title']
+    );
+  }
+
+  @override
+  Map<String,dynamic> toMap()
+  => {
+    'roomID' : this.roomID,
+    'participants' : this.participants.map((user) => user.userID).toList(),
+    'dateTime' : this.dateTime.toIso8601String(),
+    'title' : this.title
+  };
+}
+
+
+/// A Friend Request
 class PendingRequest {
   String chatRoomID; // This will be the ID of the ChatRoom once the request is accepted
   List<UserProfile> participants;

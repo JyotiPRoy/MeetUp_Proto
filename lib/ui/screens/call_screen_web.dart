@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/core/Session.dart';
+import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:ms_engage_proto/ui/widgets/chat_viewer.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
 class CallScreenWeb extends StatefulWidget {
@@ -28,6 +30,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
   RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   late CallSession _session;
+  final chatViewController = StreamController<SessionChat>.broadcast();
 
   Widget getVideoView(RTCVideoRenderer renderer) => Expanded(
         child: Container(
@@ -75,6 +78,9 @@ class _CallScreenWebState extends State<CallScreenWeb> {
       await _session.initialize(isOffer: widget.host);
     }).then((value) {
       widget.host ? _session.makeCall() : _session.answerCall();
+      _session.sessionChatController.stream.listen((sessionChat) {
+        chatViewController.add(sessionChat);
+      });
     });
   }
 
@@ -151,7 +157,38 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                             fontSize: 14),
                       )
                     ],
-                  )
+                  ),
+                  Expanded(
+                    child: SizedBox(),
+                  ),
+                  DefaultButton(
+                    onPress: (){},
+                    child: Icon(
+                      FontAwesomeIcons.commentAlt,
+                      color: AppStyle.whiteAccent,
+                      size: 18,
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                    buttonBorder: BorderSide(
+                      color: AppStyle.defaultBorderColor
+                    ),
+                    buttonColor: AppStyle.secondaryColor,
+                  ),
+                  SizedBox(width: 16,),
+                  DefaultButton(
+                    onPress: (){},
+                    child: Icon(
+                      FontAwesomeIcons.userFriends,
+                      color: AppStyle.whiteAccent,
+                      size: 18,
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                    buttonBorder: BorderSide(
+                        color: AppStyle.defaultBorderColor
+                    ),
+                    buttonColor: AppStyle.secondaryColor,
+                  ),
+                  SizedBox(width: 20,)
                 ],
               ),
             ),
@@ -160,7 +197,20 @@ class _CallScreenWebState extends State<CallScreenWeb> {
               height: height * 0.77,
               color: Colors.black,
               child: Row(
-                children: rendererContainer,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: rendererContainer,
+                    ),
+                  ),
+                  Container(
+                    width: width * 0.22,
+                    // color: Colors.red,
+                    child: ChatViewer(
+                      viewController: chatViewController.stream,
+                    ),
+                  )
+                ],
               ),
             ),
             Padding(
