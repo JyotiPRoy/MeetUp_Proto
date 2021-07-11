@@ -283,19 +283,13 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                           _sendChat(currentUser, snapshot.data!);
                         },
                         child: _isSending
-                            ? StreamBuilder<double>(
-                          stream: SessionData.instance.uploadProgress,
-                          builder: (context, snapshot) {
-                            return Container(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                color: AppStyle.primaryColor,
-                                value: snapshot.data,
-                              ),
-                            );
-                          },
-                        )
+                            ? Container(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  color: AppStyle.primaryColor,
+                                ),
+                              )
                             : Text(
                           'Send',
                           style: TextStyle(

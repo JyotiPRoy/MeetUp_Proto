@@ -8,6 +8,7 @@ import 'package:mime/mime.dart';
 import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
 import 'package:ms_engage_proto/model/user.dart';
+import 'package:ms_engage_proto/provider/pexel_img_provider.dart';
 import 'package:ms_engage_proto/services/auth.dart';
 import 'package:ms_engage_proto/utils/misc_utils.dart';
 import 'package:rxdart/rxdart.dart';
@@ -28,6 +29,8 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
   /// Pending Friend Requests
   List<PendingRequest> _pendingRequests = <PendingRequest>[];
 
+  int pexelPageNum = 0;
+
 
   final Auth _auth = Auth();
   final _userStreamController = BehaviorSubject<UserProfile>();
@@ -41,6 +44,7 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
     = FirebaseFirestore.instance.collection('users');
 
   SessionData._(){
+    initPexel();
     currentUserStream.listen((user) {
       if(user != null){
         _init();
@@ -49,6 +53,14 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
     uploadProgressController.stream.listen((frac) {
       print('UPLOAD FRAC: $frac');
     });
+  }
+
+  void initPexel() async {
+    var docSnap = await FirebaseFirestore.instance.collection('pexel').doc('selectedImg').get();
+    if(docSnap.data() != null){
+      pexelPageNum = docSnap.data()!['pageNumber'];
+      print('PEXEL PAGE NUMBER: ${docSnap.data()!['pageNumber']}');
+    }
   }
 
   void _initStreams(){

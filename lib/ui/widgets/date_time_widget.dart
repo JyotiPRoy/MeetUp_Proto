@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:ms_engage_proto/provider/pexel_img_provider.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:timer_builder/timer_builder.dart';
 
@@ -25,7 +26,7 @@ class DateTimeDisplay extends StatelessWidget {
         children: [
           Positioned.fill(
             child: FutureBuilder<String?>(
-                future: PexelImageProvider.imageUrl,
+                future: PexelImageProvider.getImageUrl(SessionData.instance.pexelPageNum),
                 builder: (context, snapshot) {
                   if(snapshot.hasData && snapshot.data != null){
                     return Container(
