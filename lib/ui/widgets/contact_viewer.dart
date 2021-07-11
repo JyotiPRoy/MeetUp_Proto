@@ -127,7 +127,10 @@ class _ContactViewerState extends State<ContactViewer> {
                           width: 16,
                         ),
                         DefaultButton(
-                          onPress: (){},
+                          onPress: (){
+                            SessionData.instance.declineRequest(snapshot.data as PendingRequest);
+                            widget.dataController.add(null);
+                          },
                           child: Text(
                             'Decline',
                             style: TextStyle(

@@ -5,14 +5,17 @@ mixin _SessionChatData {
       FirebaseFirestore.instance.collection('users');
   final _fileStorageReference = FirebaseStorage.instance.ref('chatAttachments');
 
-  final _userNameCollection = FirebaseFirestore.instance.collection('userName-ID');
-  final _globalChatRoomCollection = FirebaseFirestore.instance.collection('chatRooms');
+  final _userNameCollection =
+      FirebaseFirestore.instance.collection('userName-ID');
+  final _globalChatRoomCollection =
+      FirebaseFirestore.instance.collection('chatRooms');
 
   final uploadProgressController = StreamController<double>.broadcast();
 
   static const String chatRoomsCollection = 'chatRooms';
   static const String pendingRequestsCollection = 'pendingRequests';
-  static const contactsCollection = 'contacts';
+  static const String contactsCollection = 'contacts';
+  static const String sentRequestsCollection = 'sentRequests';
 
   Future<void> _createChatRoom(List<UserProfile> participants) async {
     String roomID = MiscUtils.generateSecureRandomString(12);
@@ -43,35 +46,69 @@ mixin _SessionChatData {
           .collection(pendingRequestsCollection)
           .doc(chatRoomID)
           .set(request.toMap());
+      await _userCollection
+          .doc(sender.userID)
+          .collection(sentRequestsCollection)
+          .doc(rec.userID)
+          .set({'id': rec.userID});
     }
   }
 
-  Future<void> _acceptPendingRequest(UserProfile accepter, PendingRequest request) async {
-    for(UserProfile user in request.participants){
-      var userDoc =  _userCollection.doc(user.userID);
-      await userDoc.collection(chatRoomsCollection).doc(request.chatRoomID).set(request.toChatRoomMap());
-      for(UserProfile user2 in request.participants){
-        if(user.userID != user2.userID){
-          userDoc.collection(contactsCollection).doc(user2.userID).set({'userID' : user2.userID});
+  Future<void> _declineRequest(UserProfile self, PendingRequest request) async {
+    await _userCollection
+        .doc(self.userID)
+        .collection(pendingRequestsCollection)
+        .doc(request.chatRoomID)
+        .delete();
+    for (UserProfile requester in request.participants) {
+      if (requester.userID != self.userID) {
+        await _userCollection
+            .doc(requester.userID)
+            .collection(sentRequestsCollection)
+            .doc(self.userID)
+            .delete();
+      }
+    }
+  }
+
+  Future<void> _acceptPendingRequest(
+      UserProfile accepter, PendingRequest request) async {
+    for (UserProfile user in request.participants) {
+      var userDoc = _userCollection.doc(user.userID);
+      await userDoc
+          .collection(chatRoomsCollection)
+          .doc(request.chatRoomID)
+          .set(request.toChatRoomMap());
+      for (UserProfile user2 in request.participants) {
+        if (user.userID != user2.userID) {
+          userDoc
+              .collection(contactsCollection)
+              .doc(user2.userID)
+              .set({'userID': user2.userID});
         }
       }
     }
     await _userCollection
-        .doc(accepter.userID).collection(pendingRequestsCollection).doc(request.chatRoomID).delete();
+        .doc(accepter.userID)
+        .collection(pendingRequestsCollection)
+        .doc(request.chatRoomID)
+        .delete();
   }
 
-Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files, bool isSession) async {
+  Future<void> _sendChat(Chat chat, ChatRoom chatRoom,
+      List<PlatformFile>? files, bool isSession) async {
     var _chatDoc = _globalChatRoomCollection.doc(chatRoom.roomID);
     int totalBytes = 0, totalBytesSent = 0;
     List<ChatAttachment> attachments = [];
-    if(files != null && files.isNotEmpty){
+    if (files != null && files.isNotEmpty) {
       files.forEach((file) {
         totalBytes += file.size;
         print('TOTAL_BYTES: $totalBytes');
       });
-      for(PlatformFile file in files){
+      for (PlatformFile file in files) {
         var fileRef = _fileStorageReference.child(file.name);
-        var uploadTask = fileRef.putData(file.bytes!, SettableMetadata(contentType: lookupMimeType(file.name)));
+        var uploadTask = fileRef.putData(file.bytes!,
+            SettableMetadata(contentType: lookupMimeType(file.name)));
         uploadTask.snapshotEvents.listen((event) {
           totalBytesSent += event.bytesTransferred;
           var transferred = totalBytesSent / totalBytes;
@@ -87,13 +124,17 @@ Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files, 
       }
       chat.attachments = attachments;
     }
-    await _chatDoc.collection('chats').doc(DateTime.now().toIso8601String()).set(chat.toMap());
-}
+    await _chatDoc
+        .collection('chats')
+        .doc(DateTime.now().toIso8601String())
+        .set(chat.toMap());
+  }
 
   Future<List<UserProfile>> _getAllContacts(String userID) async {
     List<UserProfile> contacts = [];
     Auth _auth = Auth();
-    var snapshot = await _userCollection.doc(userID).collection(contactsCollection).get();
+    var snapshot =
+        await _userCollection.doc(userID).collection(contactsCollection).get();
     for (QueryDocumentSnapshot<Map<String, dynamic>> element in snapshot.docs) {
       UserProfile? contact =
           await _auth.getProfileFromFirebase(element.data()['userID']);
@@ -107,8 +148,11 @@ Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files, 
 
   Future<List<PendingRequest>> _getAllPendingRequest(String userID) async {
     List<PendingRequest> requests = [];
-    var snapshot = await _userCollection.doc(userID).collection(pendingRequestsCollection).get();
-    for(QueryDocumentSnapshot<Map<String,dynamic>> docSnap in snapshot.docs){
+    var snapshot = await _userCollection
+        .doc(userID)
+        .collection(pendingRequestsCollection)
+        .get();
+    for (QueryDocumentSnapshot<Map<String, dynamic>> docSnap in snapshot.docs) {
       requests.add(await PendingRequest.fromMap(docSnap.data()));
     }
     return requests;
@@ -116,11 +160,11 @@ Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files, 
 
   Future<List<ChatRoom>> _getAllChatRooms(String userID) async {
     List<ChatRoom> chatRooms = [];
-    var snapshot = await _userCollection.doc(userID).collection(chatRoomsCollection).get();
-    for(QueryDocumentSnapshot<Map<String,dynamic>> docSnap in snapshot.docs){
+    var snapshot =
+        await _userCollection.doc(userID).collection(chatRoomsCollection).get();
+    for (QueryDocumentSnapshot<Map<String, dynamic>> docSnap in snapshot.docs) {
       chatRooms.add(await ChatRoom.fromMap(docSnap.data()));
     }
     return chatRooms;
   }
-
 }

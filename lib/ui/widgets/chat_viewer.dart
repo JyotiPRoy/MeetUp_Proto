@@ -90,7 +90,8 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
           if (snapshot.hasData && snapshot.data != null) {
             UserProfile currentUser = SessionData.instance.currentUser!;
             UserProfile? other;
-            if(snapshot.data is !SessionChat){
+            print('PARTICIPANTS: ${snapshot.data!.participants.length}');
+            if(snapshot.data!.participants.length > 1){
               other = snapshot.data!.participants
               .where((user) => user.userID != currentUser.userID)
               .first;
@@ -236,7 +237,15 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                       SizedBox(
                         width: 6,
                       ),
-                      DefaultButton(
+                      widget.isSession ?
+                      IconButton(
+                        onPressed: () => _pickAttachments(),
+                        icon: Icon(
+                          Icons.attach_file,
+                          color: AppStyle.whiteAccent,
+                        ),
+                      )
+                          : DefaultButton(
                         onPress: () async => _pickAttachments(),
                         child: Text(
                           'attach',
@@ -244,12 +253,29 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                               color: AppStyle.whiteAccent, fontSize: 16),
                         ),
                         padding:
-                            EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                        EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                        buttonColor: AppStyle.secondaryColor,
+                        buttonBorder: BorderSide(
+                            color: AppStyle.defaultBorderColor
+                        ),
                       ),
                       SizedBox(
                         width: 16,
                       ),
-                      DefaultButton(
+                      widget.isSession ?
+                      IconButton(
+                        onPressed: (){
+                          setState(() {
+                            _isSending = true;
+                          });
+                          _sendChat(currentUser, snapshot.data!);
+                        },
+                        icon: Icon(
+                            Icons.send,
+                            color: AppStyle.whiteAccent
+                        ),
+                      )
+                          : DefaultButton(
                         onPress: () {
                           setState(() {
                             _isSending = true;
@@ -258,25 +284,25 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                         },
                         child: _isSending
                             ? StreamBuilder<double>(
-                                stream: SessionData.instance.uploadProgress,
-                                builder: (context, snapshot) {
-                                  return Container(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      color: AppStyle.primaryColor,
-                                      value: snapshot.data,
-                                    ),
-                                  );
-                                },
-                              )
-                            : Text(
-                                'Send',
-                                style: TextStyle(
-                                    color: AppStyle.whiteAccent, fontSize: 16),
+                          stream: SessionData.instance.uploadProgress,
+                          builder: (context, snapshot) {
+                            return Container(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                color: AppStyle.primaryColor,
+                                value: snapshot.data,
                               ),
+                            );
+                          },
+                        )
+                            : Text(
+                          'Send',
+                          style: TextStyle(
+                              color: AppStyle.whiteAccent, fontSize: 16),
+                        ),
                         padding:
-                            EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                        EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                       )
                     ],
                   ),
@@ -285,9 +311,12 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
             );
           }
           return Center(
-            child: Container(
-                //TODO: Add something similar to when ContactsViewer has null data
-                ),
+            child: Text(
+              widget.isSession ? 'Connecting to Chat...' : '',
+              style: TextStyle(
+                color: AppStyle.defaultUnselectedColor
+              ),
+            ),
           );
         },
       ),

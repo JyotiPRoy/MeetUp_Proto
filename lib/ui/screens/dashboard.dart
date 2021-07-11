@@ -35,6 +35,8 @@ class _DashboardState extends State<Dashboard> {
 
   Widget? _switcherChild;
 
+  final focusNode = FocusNode();
+
   set switcherChild(int index) => setState(() {
         _switcherChild = pages[index];
         _currentPageTitle = pageTitles[index];
@@ -65,199 +67,204 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    // UserProfile? user = GlobalStore.instance.currentUser;
-    return Scaffold(
-      backgroundColor: AppStyle.primaryColor,
-      body: Container(
-        width: width,
-        height: height,
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  border: Border(
-                      right: BorderSide(color: AppStyle.darkBorderColor))),
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 55,
-                    width: 55,
-                    decoration: BoxDecoration(
-                      color: AppStyle.primaryButtonColor,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    child: Icon(
-                      FontAwesomeIcons.video,
-                      color: AppStyle.whiteAccent,
-                    ),
-                  ),
-                  SizedBox(
-                    height: height * 0.08,
-                  ),
-                  NavToggleButton(
-                    onTap: () {
-                      currentButton = 0;
-                      switcherChild = 0;
-                    },
-                    child: Icon(
-                      Icons.home,
-                      size: 30,
-                    ),
-                    index: 0,
-                    toggleController: toggleGroupController.stream,
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  NavToggleButton(
-                    onTap: () {
-                      currentButton = 1;
-                      switcherChild = 1;
-                    },
-                    child: Icon(
-                      FontAwesomeIcons.commentAlt,
-                    ),
-                    index: 1,
-                    toggleController: toggleGroupController.stream,
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  NavToggleButton(
-                    onTap: () {
-                      currentButton = 2;
-                      switcherChild = 2;
-                    },
-                    child: Icon(
-                      FontAwesomeIcons.userFriends,
-                      size: 19,
-                    ),
-                    index: 2,
-                    toggleController: toggleGroupController.stream,
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  NavToggleButton(
-                    onTap: () {
-                      currentButton = 3;
-                      switcherChild = 3;
-                    },
-                    child: Icon(
-                      FontAwesomeIcons.clock,
-                    ),
-                    index: 3,
-                    toggleController: toggleGroupController.stream,
-                  ),
-                  Expanded(child: SizedBox()),
-                  DefaultButton(
-                    onPress: () {},
-                    fixedSize: Size(60, 60),
-                    child: Icon(
-                      FontAwesomeIcons.cog,
-                      color: AppStyle.whiteAccent,
-                    ),
-                    buttonColor: AppStyle.secondaryColor,
-                    buttonBorder:
-                        BorderSide(color: AppStyle.defaultBorderColor),
-                  )
-                ],
-              ),
-            ),
-            Expanded(
-              child: Container(
+
+    return GestureDetector(
+      onTap: (){
+        FocusScope.of(context).requestFocus(focusNode);
+      },
+      child: Scaffold(
+        backgroundColor: AppStyle.primaryColor,
+        body: Container(
+          width: width,
+          height: height,
+          child: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        right: BorderSide(color: AppStyle.darkBorderColor))),
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: 75,
+                    Container(
+                      height: 55,
+                      width: 55,
+                      decoration: BoxDecoration(
+                        color: AppStyle.primaryButtonColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(
-                          color: AppStyle.darkBorderColor,
-                        ))),
-                        padding:
-                            EdgeInsets.only(left: width * 0.045, right: 40),
-                        width: double.infinity,
-                        height: height * 0.1,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            AppStyle.defaultHeaderText(_currentPageTitle),
-                            Expanded(
-                              child: SizedBox(),
-                            ),
-                            SearchWidget(),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            PendingRequestsView(),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            StreamBuilder<UserProfile?>(
-                              stream: SessionData.instance.currentUserStream,
-                              builder: (context, snapshot) {
-                                UserProfile? user = snapshot.data;
-                                return Container(
-                                    clipBehavior: Clip.antiAlias,
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(15)),
-                                      border: Border.all(
-                                        color: AppStyle.defaultBorderColor,
-                                      ),
-                                      color: AppStyle.secondaryColor,
-                                    ),
-                                    child: snapshot.hasData
-                                        ? (user!.pfpUrl != null &&
-                                                user.pfpUrl != '' &&
-                                                user.pfpUrl != 'null')
-                                            ? Image.network(
-                                                user.pfpUrl!,
-                                                fit: BoxFit.contain,
-                                                filterQuality:
-                                                    FilterQuality.medium,
-                                                height: 58,
-                                                width: 58,
-                                              )
-                                            : Center(
-                                                child: Icon(
-                                                  FontAwesomeIcons.user,
-                                                  color: AppStyle
-                                                      .defaultUnselectedColor,
-                                                ),
-                                              )
-                                        : Center(
-                                            child: Icon(
-                                              FontAwesomeIcons.user,
-                                              color: AppStyle
-                                                  .defaultUnselectedColor,
-                                            ),
-                                          ));
-                              },
-                            )
-                          ],
-                        ),
+                      child: Icon(
+                        FontAwesomeIcons.video,
+                        color: AppStyle.whiteAccent,
                       ),
                     ),
-                    Expanded(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: _switcherChild,
+                    SizedBox(
+                      height: height * 0.08,
+                    ),
+                    NavToggleButton(
+                      onTap: () {
+                        currentButton = 0;
+                        switcherChild = 0;
+                      },
+                      child: Icon(
+                        Icons.home,
+                        size: 30,
                       ),
+                      index: 0,
+                      toggleController: toggleGroupController.stream,
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    NavToggleButton(
+                      onTap: () {
+                        currentButton = 1;
+                        switcherChild = 1;
+                      },
+                      child: Icon(
+                        FontAwesomeIcons.commentAlt,
+                      ),
+                      index: 1,
+                      toggleController: toggleGroupController.stream,
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    NavToggleButton(
+                      onTap: () {
+                        currentButton = 2;
+                        switcherChild = 2;
+                      },
+                      child: Icon(
+                        FontAwesomeIcons.userFriends,
+                        size: 19,
+                      ),
+                      index: 2,
+                      toggleController: toggleGroupController.stream,
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    NavToggleButton(
+                      onTap: () {
+                        currentButton = 3;
+                        switcherChild = 3;
+                      },
+                      child: Icon(
+                        FontAwesomeIcons.clock,
+                      ),
+                      index: 3,
+                      toggleController: toggleGroupController.stream,
+                    ),
+                    Expanded(child: SizedBox()),
+                    DefaultButton(
+                      onPress: () {},
+                      fixedSize: Size(60, 60),
+                      child: Icon(
+                        FontAwesomeIcons.cog,
+                        color: AppStyle.whiteAccent,
+                      ),
+                      buttonColor: AppStyle.secondaryColor,
+                      buttonBorder:
+                          BorderSide(color: AppStyle.defaultBorderColor),
                     )
                   ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: Container(
+                  child: Column(
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: 75,
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(
+                            color: AppStyle.darkBorderColor,
+                          ))),
+                          padding:
+                              EdgeInsets.only(left: width * 0.045, right: 40),
+                          width: double.infinity,
+                          height: height * 0.1,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              AppStyle.defaultHeaderText(_currentPageTitle),
+                              Expanded(
+                                child: SizedBox(),
+                              ),
+                              SearchWidget(),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              PendingRequestsView(),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              StreamBuilder<UserProfile?>(
+                                stream: SessionData.instance.currentUserStream,
+                                builder: (context, snapshot) {
+                                  UserProfile? user = snapshot.data;
+                                  return Container(
+                                      clipBehavior: Clip.antiAlias,
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                          color: AppStyle.defaultBorderColor,
+                                        ),
+                                        color: AppStyle.secondaryColor,
+                                      ),
+                                      child: snapshot.hasData
+                                          ? (user!.pfpUrl != null &&
+                                                  user.pfpUrl != '' &&
+                                                  user.pfpUrl != 'null')
+                                              ? Image.network(
+                                                  user.pfpUrl!,
+                                                  fit: BoxFit.contain,
+                                                  filterQuality:
+                                                      FilterQuality.medium,
+                                                  height: 58,
+                                                  width: 58,
+                                                )
+                                              : Center(
+                                                  child: Icon(
+                                                    FontAwesomeIcons.user,
+                                                    color: AppStyle
+                                                        .defaultUnselectedColor,
+                                                  ),
+                                                )
+                                          : Center(
+                                              child: Icon(
+                                                FontAwesomeIcons.user,
+                                                color: AppStyle
+                                                    .defaultUnselectedColor,
+                                              ),
+                                            ));
+                                },
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: _switcherChild,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

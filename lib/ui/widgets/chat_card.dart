@@ -52,7 +52,7 @@ class ChatCard extends StatelessWidget {
         children: [
           other != null
           ? Container(
-            margin: EdgeInsets.symmetric(vertical: 6),
+            padding: EdgeInsets.only(bottom: 12),
             child: Text(
               isCurrentUser ? 'You' : other!.userName,
               style: TextStyle(

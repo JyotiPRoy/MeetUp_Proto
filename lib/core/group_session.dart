@@ -6,7 +6,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:ms_engage_proto/core/Session.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
 
-typedef void StreamStateCallback(MediaStream stream,String id);
+typedef void StreamStateCallback(MediaStream? stream,String id);
 
 class GroupSession{
 
@@ -57,8 +57,17 @@ class GroupSession{
     watchForPeer();
   }
 
-  void leaveCall(){
-
+  void leaveCall() async {
+    var snapshot = await _peersCollection.get();
+    if(snapshot.docs.isNotEmpty){
+      for(QueryDocumentSnapshot docSnap in snapshot.docs){
+        if(docSnap.id != _currentUser.userID){
+          var callDoc = docSnap.reference
+              .collection('connections').doc(_currentUser.userID);
+          await callDoc.delete();
+        }
+      }
+    }
   }
 
   void watchForPeer(){
@@ -88,6 +97,7 @@ class GroupSession{
             }
             case DocumentChangeType.removed: {
               peerSessions[id]!.endCall();
+              onRemoveRemote.call(null, change.doc.id);
               // TODO: Maybe even remove the Renderer/VideoView
               break;
             }

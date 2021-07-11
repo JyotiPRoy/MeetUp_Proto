@@ -25,8 +25,8 @@ class _SearchWidgetState extends State<SearchWidget> {
   final LayerLink layerLink = LayerLink();
   final Algolia _algolia = AlgoliaHelper.algolia;
 
-  StreamController<UnmodifiableListView<AlgoliaObjectSnapshot>> _searchResults
-      = StreamController<UnmodifiableListView<AlgoliaObjectSnapshot>>.broadcast();
+  StreamController<List<AlgoliaObjectSnapshot>> _searchResults
+      = StreamController<List<AlgoliaObjectSnapshot>>.broadcast();
 
   Future<void> _getResults(String key) async {
     var query = _algolia.instance.index('users').query(key);
@@ -34,7 +34,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     query.setFacets(['userName']);
     var querySnapshot = await query.getObjects();
     var results = querySnapshot.hits;
-    _searchResults.add(UnmodifiableListView(results));
+    _searchResults.add(results);
   }
 
   @override
@@ -89,70 +89,87 @@ class _SearchWidgetState extends State<SearchWidget> {
             child: Material(
               color: AppStyle.secondaryColor,
               borderRadius: BorderRadius.only(bottomLeft: radius, bottomRight: radius),
-              child: StreamBuilder<UnmodifiableListView<AlgoliaObjectSnapshot>>(
+              child: StreamBuilder<List<AlgoliaObjectSnapshot>>(
                 stream: _searchResults.stream,
                 builder: (context, snapshot) {
                   if(snapshot.hasData && snapshot.data != null){
                     var resultsBorder = BorderSide(
                       color: AppStyle.defaultBorderColor
                     );
-                    return Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppStyle.secondaryColor,
-                        borderRadius: BorderRadius.only(bottomLeft: radius, bottomRight: radius),
-                      ),
-                      width: size.width,
-                      height: 80.0 * snapshot.data!.length,
-                      child: ListView.builder(
-                        itemCount: snapshot.data != null ? snapshot.data!.length : 0,
-                        itemBuilder: (context, index){
-                          bool requestSent = false;
-                          var dataMap = snapshot.data![index].data;
-                          return ListTile(
-                            contentPadding: EdgeInsets.all(10),
-                            leading: Container(
-                              margin: EdgeInsets.only(right: 10),
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppStyle.defaultBorderColor
+                    // var contacts
+                    //   = SessionData.instance.contactsStatic.map((user) => user.userID).toList();
+                    // var sentRequests
+                    //   = SessionData.instance.sentRequestsStatic;
+
+                    return StreamBuilder<List<String>>(
+                      stream: SessionData.instance.sentRequests,
+                      builder: (context, snapshot2) {
+                        List<AlgoliaObjectSnapshot> filteredList = snapshot.data!;
+                        if(snapshot2.hasData && snapshot2.data != null){
+                          filteredList  = snapshot.data!.where((objSnapshot)
+                          => !snapshot2.data!.contains(objSnapshot.data['userID'])
+                          ).toList();
+                        }
+                        return Container(
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppStyle.secondaryColor,
+                            borderRadius: BorderRadius.only(bottomLeft: radius, bottomRight: radius),
+                          ),
+                          width: size.width,
+                          height: 80.0 * filteredList.length,
+                          child: ListView.builder(
+                            itemCount: snapshot.data != null ? filteredList.length : 0,
+                            itemBuilder: (context, index){
+                              bool requestSent = false;
+                              var dataMap = filteredList[index].data;
+                              return ListTile(
+                                contentPadding: EdgeInsets.all(10),
+                                leading: Container(
+                                  margin: EdgeInsets.only(right: 10),
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: AppStyle.defaultBorderColor
+                                      ),
+                                      color: AppStyle.secondaryColor,
+                                      image: DecorationImage(
+                                          image: NetworkImage(
+                                              dataMap['pfpUrl']
+                                          )
+                                      )
+                                  ),
                                 ),
-                                color: AppStyle.secondaryColor,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                    dataMap['pfpUrl']
-                                  )
-                                )
-                              ),
-                            ),
-                            title: Text(
-                              dataMap['userName'],
-                              style: TextStyle(
-                                color: AppStyle.whiteAccent,
-                                fontSize: 16
-                              ),
-                            ),
-                            trailing: IconButton(
-                              color: AppStyle.primaryButtonColor,
-                              icon: !requestSent
-                                  ? Icon(Icons.add, color: AppStyle.whiteAccent,)
-                                  : Icon(Icons.check, color: AppStyle.whiteAccent,),
-                              onPressed: (){
-                                sendRequest(dataMap);
-                                setState(() {
-                                  requestSent = true;
-                                });
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                                title: Text(
+                                  dataMap['userName'],
+                                  style: TextStyle(
+                                      color: AppStyle.whiteAccent,
+                                      fontSize: 16
+                                  ),
+                                ),
+                                trailing: IconButton(
+                                  color: AppStyle.primaryButtonColor,
+                                  icon: !requestSent
+                                      ? Icon(Icons.add, color: AppStyle.whiteAccent,)
+                                      : Icon(Icons.check, color: AppStyle.whiteAccent,),
+                                  onPressed: (){
+                                    sendRequest(dataMap);
+                                    overlayEntry?.remove();
+                                    setState(() {
+                                      requestSent = true;
+                                    });
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }
                     );
                   }
-                  return Text('Loading...', style: TextStyle(color: AppStyle.whiteAccent),);
+                  return SizedBox();
                 }
               ),
             ),

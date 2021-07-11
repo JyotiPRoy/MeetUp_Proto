@@ -77,51 +77,48 @@ class _ChatViewState extends State<ChatView> {
                             UserProfile user
                               = chatRoom.participants.where((user)
                                 => user.userID != SessionData.instance.currentUser!.userID).first;
-                           return Padding(
-                             padding: const EdgeInsets.symmetric(vertical: 8),
-                             child: Material(
-                               color: AppStyle.primaryColor,
-                               borderRadius: BorderRadius.circular(20),
-                               clipBehavior: Clip.hardEdge,
-                               child: InkWell(
-                                 onTap: (){
-                                   viewController.add(chatRoom);
-                                 },
-                                 // splashColor: AppStyle.defaultSplash,
-                                 child: Padding(
-                                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                                   child: Container(
-                                     height: 75,
-                                     child: Row(
-                                       crossAxisAlignment: CrossAxisAlignment.center,
-                                       children: [
-                                         Container(
-                                           clipBehavior: Clip.antiAlias,
-                                           width: 50,
-                                           height: 50,
-                                           decoration: BoxDecoration(
-                                             borderRadius: BorderRadius.all(Radius.circular(15)),
-                                             border: Border.all(
-                                               color: AppStyle.defaultBorderColor,
-                                             ),
-                                             color: AppStyle.secondaryColor,
+                           return Material(
+                             color: AppStyle.primaryColor,
+                             borderRadius: BorderRadius.circular(20),
+                             clipBehavior: Clip.hardEdge,
+                             child: InkWell(
+                               onTap: (){
+                                 viewController.add(chatRoom);
+                               },
+                               // splashColor: AppStyle.defaultSplash,
+                               child: Padding(
+                                 padding: const EdgeInsets.symmetric(horizontal: 16),
+                                 child: Container(
+                                   height: 75,
+                                   child: Row(
+                                     crossAxisAlignment: CrossAxisAlignment.center,
+                                     children: [
+                                       Container(
+                                         clipBehavior: Clip.antiAlias,
+                                         width: 50,
+                                         height: 50,
+                                         decoration: BoxDecoration(
+                                           borderRadius: BorderRadius.all(Radius.circular(15)),
+                                           border: Border.all(
+                                             color: AppStyle.defaultBorderColor,
                                            ),
-                                           child: user.pfpUrl != null
-                                              ? Image.network(
-                                                  user.pfpUrl!
-                                                )
-                                              : Container(),
+                                           color: AppStyle.secondaryColor,
                                          ),
-                                         SizedBox(width: 16,),
-                                         Text(
-                                           user.userName,
-                                           style: TextStyle(
-                                             color: AppStyle.whiteAccent,
-                                             fontSize: 16
-                                           ),
-                                         )
-                                       ],
-                                     ),
+                                         child: user.pfpUrl != null
+                                            ? Image.network(
+                                                user.pfpUrl!
+                                              )
+                                            : Container(),
+                                       ),
+                                       SizedBox(width: 16,),
+                                       Text(
+                                         user.userName,
+                                         style: TextStyle(
+                                           color: AppStyle.whiteAccent,
+                                           fontSize: 16
+                                         ),
+                                       )
+                                     ],
                                    ),
                                  ),
                                ),

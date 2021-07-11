@@ -38,10 +38,11 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
       ),
     ),
   );
-
+  
+  Map<String,int> rendererRegister = {};
   List<Widget> rendererContainer = [];
 
-  void _onAddRemoteStream(MediaStream stream, String id) {
+  void _onAddRemoteStream(MediaStream? stream, String id) {
     var remoteRenderer = RTCVideoRenderer();
     remoteRenderer.initialize().whenComplete(() {
       remoteRenderer.srcObject = stream;
@@ -49,18 +50,29 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
     });
     setState(() {
       rendererContainer.add(getVideoView(remoteRenderer));
+      rendererRegister[id] = rendererContainer.length - 1;
     });
   }
-  void _onAddLocalStream(MediaStream stream, String id){
+
+  void _onAddLocalStream(MediaStream? stream, String id){
     if(!_localRendererSet){
       _localRenderer.initialize().whenComplete((){
         _localRenderer.srcObject = stream;
       });
       setState(() {
         rendererContainer.add(getVideoView(_localRenderer));
+        rendererRegister[id] = rendererContainer.length - 1;
       });
       _localRendererSet = true;
     }
+  }
+
+  void _onRemoveRemote(MediaStream? stream, String id) {
+    _remoteRenderers[id]!.dispose();
+    _remoteRenderers.remove(id);
+    setState(() {
+      rendererContainer.removeAt(rendererRegister[id]!);
+    });
   }
 
   Future<void> _showErrorDialog(String title, String message) async {
@@ -97,7 +109,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
       groupSessionID: widget.roomID,
       onAddRemote: _onAddRemoteStream,
       onAddLocal: _onAddLocalStream,
-      onRemoveRemote: (stream,id){},
+      onRemoveRemote: _onRemoveRemote,
       onError: _onError
     );
     _groupSession.joinCall();
@@ -180,7 +192,18 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
               width: width,
               height: height * 0.77,
               color: Colors.black,
-              child: Row(
+              child:
+                  rendererContainer.length == 0
+              ? Center(
+                    child: Text(
+                      'Waiting For other peers to join',
+                      style: TextStyle(
+                        color: AppStyle.whiteAccent,
+                        fontSize: 24
+                      ),
+                    ),
+                  )
+              :Row(
                 children: rendererContainer,
               ),
             ),
@@ -218,6 +241,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
                   space,
                   DefaultButton(
                     onPress: () {
+                      _groupSession.leaveCall();
                       Navigator.of(context).pop();
                     },
                     child: Text(
