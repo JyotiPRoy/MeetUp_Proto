@@ -15,6 +15,7 @@ class GroupSession{
     required this.onAddRemote,
     required this.onAddLocal,
     required this.onRemoveRemote,
+    required this.onError,
   }) : _peersCollection = FirebaseFirestore.instance.
           collection('videoRooms').doc(groupSessionID).collection('peers');
 
@@ -25,6 +26,7 @@ class GroupSession{
 
   RTCVideoRenderer? localRenderer;
   final StreamStateCallback onAddRemote, onRemoveRemote, onAddLocal;
+  final ErrorCallback onError;
 
   CollectionReference<Map<String, dynamic>> _peersCollection;
 
@@ -41,7 +43,7 @@ class GroupSession{
        if(docSnap.id != _currentUser.userID){
          var callDoc = docSnap.reference
              .collection('connections').doc(_currentUser.userID);
-         final callSession = CallSession(callDoc: callDoc);
+         final callSession = CallSession(callDoc: callDoc, onError: onError);
          peerSessions[docSnap.id] = callSession;
          _setStreamStateCallbacks(peerSessions[docSnap.id]!, docSnap.id);
          await peerSessions[docSnap.id]!.initialize(isOffer: true);
@@ -70,7 +72,10 @@ class GroupSession{
           if(data == null) throw Exception('Null Data @PeerWatcher');
           switch(change.type){
             case DocumentChangeType.added: {
-              final callSession = CallSession(callDoc: change.doc.reference);
+              final callSession = CallSession(
+                callDoc: change.doc.reference,
+                onError: onError,
+              );
               peerSessions[id] = callSession;
               _setStreamStateCallbacks(peerSessions[id]!, id);
               //await Future.delayed(Duration(seconds: 2)); // Sorry :(

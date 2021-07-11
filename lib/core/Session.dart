@@ -11,10 +11,12 @@ import 'package:ms_engage_proto/store/session_data.dart';
 
 /// Callback, when streams are added
 typedef void StreamStateCallback(MediaStream stream);
+/// Error Callback
+typedef void ErrorCallback(String title, String message);
 
 class CallSession{
 
-  CallSession({required this.callDoc}){
+  CallSession({required this.callDoc, required this.onError}){
     // callDoc = FirebaseFirestore.instance.collection('calls').doc(sessionID);
     // sessionID = callDoc.id; // Since sessionID can be null (in case of calling)
     offerCandidates = callDoc.collection('offerCandidates');
@@ -34,6 +36,7 @@ class CallSession{
 
   final String currentUserID = SessionData.instance.currentUser!.userID;
   final sessionChatController = StreamController<SessionChat>.broadcast();
+  final ErrorCallback onError;
   Map<String,UserProfile> _participants = {};
 
   MediaStream? _localStream;
@@ -105,8 +108,27 @@ class CallSession{
     _localStream!.getAudioTracks()[0].enabled = !enabled;
   }
 
-  String? _getErrorMessage() {
-
+  void _handleMediaErrors(String error) {
+    String message = '';
+    if(error.contains('NotReadableError')
+        || error.contains('TrackStartError')){
+      message = 'NotReadableError: Media Source is already in use!';
+    }else if(error.contains('NotFoundError')){
+      message = 'NotFoundError: Media device not found, make sure'
+          'that a camera or microphone is connected to the system';
+    }else if(error.contains('OverconstrainedError')
+        || error.contains('ConstraintNotSatisfiedError')){
+      message = 'OverconstrainedError: Overconstrained Error';
+    }else if(error.contains('NotAllowedError')
+        || error.contains('PermissionDismissedError')
+        || error.contains('PermissionDeniedError')){
+      message = 'NotAllowedError: Permission to access the media devices was denied!'
+          '\n Allow permissions and click "ok" to continue';
+    }else if(error.contains('TypeError')){
+      message = 'TypeError: TypeError';
+    }
+    var res = message.split(':');
+    onError.call(res[0], res[1]);
   }
 
   Future<MediaStream?> createStream() async{
@@ -127,7 +149,7 @@ class CallSession{
       localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
       onLocalStream!.call(localStream);
     }catch(e){
-
+      _handleMediaErrors(e.toString());
     }
     return localStream;
   }

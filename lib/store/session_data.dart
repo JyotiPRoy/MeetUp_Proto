@@ -111,7 +111,7 @@ class SessionData with _SessionCalendarEvents, _SessionChatData{
   Future<void> sendRequest(List<UserProfile> participants) async => _sendChatRequest(_currentUser!, participants);
   Future<void> acceptRequest(PendingRequest request) async => _acceptPendingRequest(_currentUser!, request);
   Future<void> createRoom(List<UserProfile> participants) async => _createChatRoom(participants);
-  Future<void> sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files) async => await _sendChat(chat, chatRoom, files);
+  Future<void> sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files, bool isSession) async => await _sendChat(chat, chatRoom, files, isSession);
 
   void pullAndRefreshContacts() {
     final contactsCollection = _userCollection.doc(_currentUser!.userID).collection('contacts');

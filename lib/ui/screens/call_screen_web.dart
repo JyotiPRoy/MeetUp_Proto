@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/core/Session.dart';
 import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:ms_engage_proto/ui/modals/error_dialog.dart';
 import 'package:ms_engage_proto/ui/widgets/chat_viewer.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
@@ -50,6 +51,36 @@ class _CallScreenWebState extends State<CallScreenWeb> {
 
   List<Widget> rendererContainer = [];
 
+  Future<void> _showErrorDialog(String title, String message) async {
+    Dialog signUp = Dialog(
+
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      backgroundColor: AppStyle.primaryColor,
+      child: ErrorDialog(
+        title: title,
+        content: message,
+        okTapped: (){
+          Navigator.of(context).pop();
+          _session.createStream();
+        },
+        cancelTapped: (){
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+    await showDialog<Dialog>(
+      context: context,
+      builder: (context) => signUp,
+      barrierDismissible: false
+    );
+  }
+
+  void _onError(String title, String message) {
+    _showErrorDialog(title, message);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +88,9 @@ class _CallScreenWebState extends State<CallScreenWeb> {
           .collection('calls').doc(widget.roomID);
     _initRenderers().then((value) async{
       _session = CallSession(
-          callDoc: callDoc
+        callDoc: callDoc,
+        onError: _onError
+
       );
       _session.onLocalStream = (stream){
         _localRenderer.srcObject = stream;
@@ -217,6 +250,7 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                     color: AppStyle.primaryColor,
                     child: ChatViewer(
                       viewController: chatViewController.stream,
+                      isSession: true,
                     ),
                   )
                 ],

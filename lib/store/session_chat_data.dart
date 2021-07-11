@@ -60,7 +60,7 @@ mixin _SessionChatData {
         .doc(accepter.userID).collection(pendingRequestsCollection).doc(request.chatRoomID).delete();
   }
 
-Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files) async {
+Future<void> _sendChat(Chat chat, ChatRoom chatRoom, List<PlatformFile>? files, bool isSession) async {
     var _chatDoc = _globalChatRoomCollection.doc(chatRoom.roomID);
     int totalBytes = 0, totalBytesSent = 0;
     List<ChatAttachment> attachments = [];

@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/core/group_session.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:ms_engage_proto/ui/modals/error_dialog.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
 class GroupCallScreen extends StatefulWidget {
@@ -62,6 +63,33 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
     }
   }
 
+  Future<void> _showErrorDialog(String title, String message) async {
+    Dialog signUp = Dialog(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      backgroundColor: AppStyle.primaryColor,
+      child: ErrorDialog(
+        title: title,
+        content: message,
+        okTapped: () async {
+
+        },
+        cancelTapped: (){
+
+        },
+      ),
+    );
+    await showDialog<Dialog>(
+      context: context,
+      builder: (context) => signUp,
+      barrierDismissible: false
+    );
+  }
+
+  void _onError(String title, String message) {
+    _showErrorDialog(title, message);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +98,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
       onAddRemote: _onAddRemoteStream,
       onAddLocal: _onAddLocalStream,
       onRemoveRemote: (stream,id){},
+      onError: _onError
     );
     _groupSession.joinCall();
   }

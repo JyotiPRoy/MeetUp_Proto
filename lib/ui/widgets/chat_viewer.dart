@@ -12,9 +12,11 @@ import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
 class ChatViewer extends StatefulWidget {
   final Stream<ChatRoom?> viewController;
+  final bool isSession;
   const ChatViewer({
     Key? key,
     required this.viewController,
+    required this.isSession
   }) : super(key: key);
 
   @override
@@ -48,7 +50,9 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
             message: chatTextController.text,
           ),
           chatRoom,
-          attachments.isEmpty ? null : attachments);
+          attachments.isEmpty ? null : attachments,
+          widget.isSession
+      );
       visibilityController.add(false);
       attachmentController.add([]);
       setState(() {

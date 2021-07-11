@@ -154,6 +154,7 @@ class _ChatViewState extends State<ChatView> {
               horizontal: width * 0.04, vertical: height * 0.03),
           child: ChatViewer(
             viewController: viewController,
+            isSession: false,
           ),
         )
       ],
