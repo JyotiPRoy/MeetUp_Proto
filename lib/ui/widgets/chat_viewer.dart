@@ -9,15 +9,14 @@ import 'package:ms_engage_proto/ui/screens/viewmodel/chat_view_model.dart';
 import 'package:ms_engage_proto/ui/widgets/attachment_tray.dart';
 import 'package:ms_engage_proto/ui/widgets/chat_card.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ChatViewer extends StatefulWidget {
   final Stream<ChatRoom?> viewController;
   final bool isSession;
-  const ChatViewer({
-    Key? key,
-    required this.viewController,
-    required this.isSession
-  }) : super(key: key);
+  const ChatViewer(
+      {Key? key, required this.viewController, required this.isSession})
+      : super(key: key);
 
   @override
   _ChatViewerState createState() => _ChatViewerState();
@@ -25,6 +24,7 @@ class ChatViewer extends StatefulWidget {
 
 class _ChatViewerState extends ChatViewModel<ChatViewer> {
   bool _isSending = false;
+  final cancelSubject = BehaviorSubject<bool>();
 
   @override
   void initState() {
@@ -33,6 +33,7 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
       chats = <Chat>[];
       init(chatRoom);
     });
+    cancelSubject.add(false);
   }
 
   @override
@@ -51,8 +52,8 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
           ),
           chatRoom,
           attachments.isEmpty ? null : attachments,
-          widget.isSession
-      );
+          widget.isSession,
+          cancelSubject);
       visibilityController.add(false);
       attachmentController.add([]);
       setState(() {
@@ -91,10 +92,10 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
             UserProfile currentUser = SessionData.instance.currentUser!;
             UserProfile? other;
             print('PARTICIPANTS: ${snapshot.data!.participants.length}');
-            if(snapshot.data!.participants.length > 1){
+            if (snapshot.data!.participants.length > 1) {
               other = snapshot.data!.participants
-              .where((user) => user.userID != currentUser.userID)
-              .first;
+                  .where((user) => user.userID != currentUser.userID)
+                  .first;
             }
 
             return Column(
@@ -103,28 +104,30 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    other == null ? SizedBox()
-                   : Container(
-                        height: 75,
-                        width: 75,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(25)),
-                          border:
-                              Border.all(color: AppStyle.defaultBorderColor),
-                          image: other.pfpUrl != null
-                              ? DecorationImage(
-                                  image: NetworkImage(other.pfpUrl!),
-                                )
-                              : null,
-                        ),
-                        child: other.pfpUrl != null
-                            ? Container()
-                            : Center(
-                                child: Icon(
-                                  FontAwesomeIcons.user,
-                                  color: AppStyle.defaultUnselectedColor,
-                                ),
-                              )),
+                    other == null
+                        ? SizedBox()
+                        : Container(
+                            height: 75,
+                            width: 75,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(25)),
+                              border: Border.all(
+                                  color: AppStyle.defaultBorderColor),
+                              image: other.pfpUrl != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(other.pfpUrl!),
+                                    )
+                                  : null,
+                            ),
+                            child: other.pfpUrl != null
+                                ? Container()
+                                : Center(
+                                    child: Icon(
+                                      FontAwesomeIcons.user,
+                                      color: AppStyle.defaultUnselectedColor,
+                                    ),
+                                  )),
                     SizedBox(
                       width: 20,
                     ),
@@ -132,8 +135,7 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          other == null ? 'Chat'
-                          : other.userName,
+                          other == null ? 'Chat' : other.userName,
                           style: TextStyle(
                               color: AppStyle.whiteAccent,
                               fontSize: 20,
@@ -142,12 +144,13 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                         SizedBox(
                           height: 4,
                         ),
-                        other == null ? SizedBox()
-                        : Text(
-                            other.email!,
-                            style:
-                              TextStyle(color: AppStyle.defaultUnselectedColor),
-                        )
+                        other == null
+                            ? SizedBox()
+                            : Text(
+                                other.email!,
+                                style: TextStyle(
+                                    color: AppStyle.defaultUnselectedColor),
+                              )
                       ],
                     )
                   ],
@@ -189,9 +192,9 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                                       isCurrentUser: isCurrentUser,
                                       chat: chat,
                                       other: other,
-                                        // snapshot.data is !SessionChat
-                                        // ? null
-                                        // : other,
+                                      // snapshot.data is !SessionChat
+                                      // ? null
+                                      // : other,
                                     ),
                                   )
                                 ],
@@ -201,9 +204,7 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                         );
                       }
                       return Center(
-                        child: Container(
-
-                        ),
+                        child: Container(),
                       );
                     },
                   ),
@@ -227,7 +228,8 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                           maxLines: null,
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'Message ${other == null ? '' : other.userName}',
+                            hintText:
+                                'Message ${other == null ? '' : other.userName}',
                             hintStyle: TextStyle(
                                 color: AppStyle.defaultUnselectedColor,
                                 fontSize: 14),
@@ -237,67 +239,95 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                       SizedBox(
                         width: 6,
                       ),
-                      widget.isSession ?
-                      IconButton(
-                        onPressed: () => _pickAttachments(),
-                        icon: Icon(
-                          Icons.attach_file,
-                          color: AppStyle.whiteAccent,
-                        ),
-                      )
+                      widget.isSession
+                          ? MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                onTap: () async =>
+                                    _isSending && attachments.length > 0
+                                        ? cancelSubject.add(true)
+                                        : _pickAttachments(),
+                                child: Icon(
+                                  _isSending && attachments.length > 0
+                                      ? Icons.close
+                                      : Icons.attach_file,
+                                  color: AppStyle.whiteAccent,
+                                ),
+                              ),
+                            )
                           : DefaultButton(
-                        onPress: () async => _pickAttachments(),
-                        child: Text(
-                          'attach',
-                          style: TextStyle(
-                              color: AppStyle.whiteAccent, fontSize: 16),
-                        ),
-                        padding:
-                        EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                        buttonColor: AppStyle.secondaryColor,
-                        buttonBorder: BorderSide(
-                            color: AppStyle.defaultBorderColor
-                        ),
-                      ),
+                              onPress: () async =>
+                                  _isSending && attachments.length > 0
+                                      ? cancelSubject.add(true)
+                                      : _pickAttachments(),
+                              child: Text(
+                                _isSending && attachments.length > 0
+                                    ? 'cancel'
+                                    : 'attach',
+                                style: TextStyle(
+                                    color: AppStyle.whiteAccent, fontSize: 16),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 20),
+                              buttonColor: AppStyle.secondaryColor,
+                              buttonBorder: BorderSide(
+                                  color: AppStyle.defaultBorderColor),
+                            ),
                       SizedBox(
                         width: 16,
                       ),
-                      widget.isSession ?
-                      IconButton(
-                        onPressed: (){
-                          setState(() {
-                            _isSending = true;
-                          });
-                          _sendChat(currentUser, snapshot.data!);
-                        },
-                        icon: Icon(
-                            Icons.send,
-                            color: AppStyle.whiteAccent
-                        ),
-                      )
+                      widget.isSession
+                          ? MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if(chatTextController.text.isNotEmpty){
+                                    setState(() {
+                                      _isSending = true;
+                                    });
+                                    _sendChat(currentUser, snapshot.data!);
+                                  }
+                                },
+                                child: _isSending
+                                    ? Center(
+                                        child: Container(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                            color: AppStyle.whiteAccent,
+                                          ),
+                                        ),
+                                      )
+                                    : Icon(Icons.send,
+                                        color: AppStyle.whiteAccent),
+                              ),
+                            )
                           : DefaultButton(
-                        onPress: () {
-                          setState(() {
-                            _isSending = true;
-                          });
-                          _sendChat(currentUser, snapshot.data!);
-                        },
-                        child: _isSending
-                            ? Container(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  color: AppStyle.primaryColor,
-                                ),
-                              )
-                            : Text(
-                          'Send',
-                          style: TextStyle(
-                              color: AppStyle.whiteAccent, fontSize: 16),
-                        ),
-                        padding:
-                        EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                      )
+                              onPress: () {
+                                if(chatTextController.text.isNotEmpty){
+                                  setState(() {
+                                    _isSending = true;
+                                  });
+                                  _sendChat(currentUser, snapshot.data!);
+                                }
+                              },
+                              child: _isSending
+                                  ? Container(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        color: AppStyle.primaryColor,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Send',
+                                      style: TextStyle(
+                                          color: AppStyle.whiteAccent,
+                                          fontSize: 16),
+                                    ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 20),
+                            )
                     ],
                   ),
                 )
@@ -307,9 +337,7 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
           return Center(
             child: Text(
               widget.isSession ? 'Connecting to Chat...' : '',
-              style: TextStyle(
-                color: AppStyle.defaultUnselectedColor
-              ),
+              style: TextStyle(color: AppStyle.defaultUnselectedColor),
             ),
           );
         },

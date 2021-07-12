@@ -96,38 +96,62 @@ mixin _SessionChatData {
   }
 
   Future<void> _sendChat(Chat chat, ChatRoom chatRoom,
-      List<PlatformFile>? files, bool isSession) async {
-    var _chatDoc = _globalChatRoomCollection.doc(chatRoom.roomID);
-    int totalBytes = 0, totalBytesSent = 0;
-    List<ChatAttachment> attachments = [];
-    if (files != null && files.isNotEmpty) {
-      files.forEach((file) {
-        totalBytes += file.size;
-        print('TOTAL_BYTES: $totalBytes');
+      List<PlatformFile>? files, bool isSession, BehaviorSubject<bool> cancel) async {
+    try{
+      var _chatDoc = _globalChatRoomCollection.doc(chatRoom.roomID);
+      int totalBytes = 0, totalBytesSent = 0;
+      List<ChatAttachment> attachments = [];
+      UploadTask? uploadTask;
+      bool cancelUpload = false;
+      cancel.listen((cancel) async {
+        if(cancel){
+          while(uploadTask == null){
+            await Future.delayed(Duration(milliseconds: 50));
+          }
+          uploadTask.cancel();
+          cancelUpload = true;
+        }
       });
-      for (PlatformFile file in files) {
-        var fileRef = _fileStorageReference.child(file.name);
-        var uploadTask = fileRef.putData(file.bytes!,
-            SettableMetadata(contentType: lookupMimeType(file.name)));
-        uploadTask.snapshotEvents.listen((event) {
-          totalBytesSent += event.bytesTransferred;
-          var transferred = totalBytesSent / totalBytes;
-          uploadProgressController.add(transferred);
+      if (files != null && files.isNotEmpty) {
+        files.forEach((file) {
+          totalBytes += file.size;
+          print('TOTAL_BYTES: $totalBytes');
         });
-        await uploadTask;
-        ChatAttachment attachment = ChatAttachment(
-          downloadUrl: await fileRef.getDownloadURL(),
-          fileName: file.name,
-        );
-        print('ATTACHMENT: ${attachment.toMap()}');
-        attachments.add(attachment);
+        for (PlatformFile file in files) {
+          if(!cancelUpload){
+            var fileRef = _fileStorageReference.child(file.name);
+            uploadTask = fileRef.putData(file.bytes!,
+                SettableMetadata(contentType: lookupMimeType(file.name)));
+            uploadTask.snapshotEvents.listen((event) {
+              totalBytesSent += event.bytesTransferred;
+              var transferred = totalBytesSent / totalBytes;
+              uploadProgressController.add(transferred);
+            });
+            await uploadTask;
+            ChatAttachment attachment = ChatAttachment(
+              downloadUrl: await fileRef.getDownloadURL(),
+              fileName: file.name,
+            );
+            print('ATTACHMENT: ${attachment.toMap()}');
+            attachments.add(attachment);
+          }else {
+            cancel.add(false);
+            return;
+          }
+        }
+        chat.attachments = attachments;
       }
-      chat.attachments = attachments;
+      await _chatDoc
+          .collection('chats')
+          .doc(DateTime.now().toIso8601String())
+          .set(chat.toMap());
+    }catch(e){
+      if(!e.toString().contains('canceled')){
+        print('Error at upload: ${e.toString()}');
+      }
+      cancel.add(false);
+      return;
     }
-    await _chatDoc
-        .collection('chats')
-        .doc(DateTime.now().toIso8601String())
-        .set(chat.toMap());
   }
 
   Future<List<UserProfile>> _getAllContacts(String userID) async {

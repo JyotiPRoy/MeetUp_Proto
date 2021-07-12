@@ -8,6 +8,7 @@ import 'package:ms_engage_proto/core/Session.dart';
 import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/modals/error_dialog.dart';
+import 'package:ms_engage_proto/ui/modals/room_info.dart';
 import 'package:ms_engage_proto/ui/widgets/chat_viewer.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
@@ -34,6 +35,10 @@ class _CallScreenWebState extends State<CallScreenWeb> {
   final chatViewController = StreamController<SessionChat>.broadcast();
   double _chatWindowWidth = 0.0;
 
+  bool _micEnabled = true;
+  bool _videoEnabled = true;
+  bool _remoteStreamAdded = false;
+
   Widget getVideoView(RTCVideoRenderer renderer) => Expanded(
         child: Container(
           child: RTCVideoView(renderer),
@@ -45,9 +50,6 @@ class _CallScreenWebState extends State<CallScreenWeb> {
           ),
         ),
       );
-
-  IconData micIcon = FontAwesomeIcons.microphone;
-  IconData videoIcon = FontAwesomeIcons.microphone;
 
   List<Widget> rendererContainer = [];
 
@@ -93,29 +95,59 @@ class _CallScreenWebState extends State<CallScreenWeb> {
 
       );
       _session.onLocalStream = (stream){
-        _localRenderer.srcObject = stream;
         setState(() {
-          rendererContainer.add(getVideoView(_localRenderer));
+          _localRenderer.srcObject = stream;
+          if(_session.videoEnabled){
+            rendererContainer.add(getVideoView(_localRenderer));
+          }
         });
       };
       _session.onAddRemoteStream = (stream){
         print('REMOTE STREAM ADDED!');
         _remoteRenderer.srcObject = stream;
         setState(() {
-          rendererContainer.add(getVideoView(_remoteRenderer));
+          if(!_remoteStreamAdded){
+            rendererContainer.add(getVideoView(_remoteRenderer));
+          }
+          _remoteStreamAdded = true;
         });
       };
+
+      _session.onTrack = (trackEvent){
+        if(_remoteStreamAdded){
+          setState(() {
+            var oldTrack = _remoteRenderer.srcObject!.getVideoTracks()[0];
+            _remoteRenderer.srcObject!.removeTrack(oldTrack);
+            _remoteRenderer.srcObject!.addTrack(trackEvent.track);
+          });
+        }
+      };
+
       _session.onRemoveRemoteStream = (stream){
         _remoteRenderer.srcObject = null;
         setState(() {});
       };
       await _session.initialize(isOffer: widget.host);
-    }).then((value) {
+    }).then((value) async {
       widget.host ? _session.makeCall() : _session.answerCall();
       _session.sessionChatController.stream.listen((sessionChat) {
         chatViewController.add(sessionChat);
       });
+      await _showRoomInfo(context);
     });
+  }
+
+  Future<void> _showRoomInfo(BuildContext context) async {
+    Dialog roomInfo = Dialog(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      backgroundColor: AppStyle.primaryColor,
+      child: RoomInfoDialog(roomID: widget.roomID,),
+    );
+    await showDialog<Dialog>(
+      context: context,
+      builder: (context) => roomInfo,
+    );
   }
 
   Future<void> _initRenderers() async {
@@ -215,19 +247,17 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                   ),
                   SizedBox(width: 16,),
                   DefaultButton(
-                    onPress: (){},
+                    onPress: () async => _showRoomInfo(context),
                     child: Icon(
-                      FontAwesomeIcons.userFriends,
+                      FontAwesomeIcons.share,
                       color: AppStyle.whiteAccent,
                       size: 18,
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-                    buttonBorder: BorderSide(
-                        color: AppStyle.defaultBorderColor
-                    ),
                     buttonColor: AppStyle.secondaryColor,
+                    buttonBorder:
+                    BorderSide(color: AppStyle.defaultBorderColor),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
                   ),
-                  SizedBox(width: 20,)
                 ],
               ),
             ),
@@ -264,25 +294,15 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                 children: [
                   DefaultButton(
                     onPress: () {
-                      _session.muteMic();
                       setState(() {
-                        micIcon = FontAwesomeIcons.microphoneSlash;
+                        _session.toggleMuteMic();
+                        _micEnabled = !_micEnabled;
                       });
                     },
                     child: Icon(
-                      micIcon,
-                      color: AppStyle.defaultUnselectedColor,
-                    ),
-                    buttonColor: AppStyle.secondaryColor,
-                    buttonBorder:
-                        BorderSide(color: AppStyle.defaultBorderColor),
-                    padding: EdgeInsets.all(25),
-                  ),
-                  space,
-                  DefaultButton(
-                    onPress: () {},
-                    child: Icon(
-                      FontAwesomeIcons.video,
+                      _micEnabled
+                        ? FontAwesomeIcons.microphone
+                        : FontAwesomeIcons.microphoneSlash,
                       color: AppStyle.defaultUnselectedColor,
                     ),
                     buttonColor: AppStyle.secondaryColor,
@@ -305,29 +325,24 @@ class _CallScreenWebState extends State<CallScreenWeb> {
                   ),
                   space,
                   DefaultButton(
-                    onPress: () {},
+                    onPress: () {
+                      setState(() {
+                        _session.toggleCamera();
+                        _videoEnabled = !_videoEnabled;
+                      });
+                    },
                     child: Icon(
-                      FontAwesomeIcons.syncAlt,
+                      _videoEnabled
+                          ? FontAwesomeIcons.video
+                          : FontAwesomeIcons.videoSlash,
                       color: AppStyle.defaultUnselectedColor,
                     ),
                     buttonColor: AppStyle.secondaryColor,
                     buttonBorder:
-                        BorderSide(color: AppStyle.defaultBorderColor),
+                    BorderSide(color: AppStyle.defaultBorderColor),
                     padding: EdgeInsets.all(25),
                   ),
                   space,
-                  DefaultButton(
-                    onPress: () {},
-                    child: Icon(
-                      FontAwesomeIcons.share,
-                      color: AppStyle.defaultUnselectedColor,
-                    ),
-                    buttonColor: AppStyle.secondaryColor,
-                    buttonBorder:
-                        BorderSide(color: AppStyle.defaultBorderColor),
-                    padding: EdgeInsets.all(25),
-                  ),
-                  space
                 ],
               ),
             )

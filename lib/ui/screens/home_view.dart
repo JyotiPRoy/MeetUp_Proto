@@ -5,8 +5,9 @@ import 'package:ms_engage_proto/model/meeting_event.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/modals/join_call.dart';
-import 'package:ms_engage_proto/ui/modals/start_call.dart';
+import 'package:ms_engage_proto/ui/modals/room_info.dart';
 import 'package:ms_engage_proto/ui/screens/call_screen_web.dart';
+import 'package:ms_engage_proto/ui/screens/group_call_screen.dart';
 import 'package:ms_engage_proto/ui/widgets/dashboard_action_btn.dart';
 import 'package:ms_engage_proto/ui/widgets/date_time_widget.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
@@ -47,7 +48,13 @@ class HomeView extends StatelessWidget {
                     subtext: 'A New Peer to Peer Meeting',
                     icon: FontAwesomeIcons.video,
                     color: AppStyle.primaryHomeAction,
-                    onTap: () => _showStartCallDialog(context, false),
+                    onTap: () {
+                      String roomID = MiscUtils.generateSecureRandomString(12);
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_)
+                          => CallScreenWeb(host: true, roomID: roomID))
+                      );
+                    },
                   ),
                   DashboardActionButton(
                     title: 'Join Meeting',
@@ -59,7 +66,13 @@ class HomeView extends StatelessWidget {
                     title: 'Create a Video Room',
                     subtext: 'Setup a group call',
                     icon: CupertinoIcons.person_add_solid,
-                    onTap: () => _showStartCallDialog(context, true),
+                    onTap: () {
+                      String roomID = MiscUtils.generateSecureRandomString(12);
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_)
+                          => GroupCallScreen(roomID: roomID))
+                      );
+                    },
                   ),
                   DashboardActionButton(
                     title: 'Join a Video Room',
@@ -141,19 +154,6 @@ class HomeView extends StatelessWidget {
       ],
     );
   }
-}
-
-void _showStartCallDialog(BuildContext context, bool isGroup) async {
-  Dialog startCall = Dialog(
-    elevation: 2,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-    backgroundColor: AppStyle.primaryColor,
-    child: StartCallDialog(isGroupCall: isGroup,),
-  );
-  await showDialog<Dialog>(
-    context: context,
-    builder: (context) => startCall,
-  );
 }
 
 void _showJoinDialog(BuildContext context, bool isGroup) async {

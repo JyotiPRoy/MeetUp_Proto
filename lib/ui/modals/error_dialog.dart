@@ -30,7 +30,7 @@ class ErrorDialog extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: width * 0.22,
-        maxHeight: height * 0.2
+        maxHeight: height * 0.25
       ),
       child: Stack(
         clipBehavior: Clip.none,
@@ -43,7 +43,7 @@ class ErrorDialog extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(20)),
                 child: Container(
-                  height: height * 0.2,
+                  height: height * 0.25,
                   width: width * 0.22,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(20)),

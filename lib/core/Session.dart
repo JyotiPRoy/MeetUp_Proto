@@ -40,12 +40,16 @@ class CallSession{
   final ErrorCallback onError;
   Map<String,UserProfile> _participants = {};
 
+  bool micEnabled = true, videoEnabled = true;
+
   MediaStream? _localStream;
   List<MediaStream>? _remoteStreams;
 
-  StreamStateCallback? onLocalStream;
-  StreamStateCallback? onAddRemoteStream;
-  StreamStateCallback? onRemoveRemoteStream;
+  StreamStateCallback? onLocalStream,
+      onAddRemoteStream,
+      onRemoveRemoteStream;
+  void Function(RTCTrackEvent event)? onTrack;
+
 
   String get sdpSemantics => 'unified-plan';
   final rtcIceServers = RTCIceGatheringServers.rtcICEServers;
@@ -97,11 +101,42 @@ class CallSession{
     });
   }
 
+  final Map<String, dynamic> mediaConstraints = {
+    'audio': true,
+    'video': {
+      'mandatory': {
+        'minWidth': '640',
+        'minHeight': '480',
+        'minFrameRate': '30',
+      },
+      'facingMode': 'user',
+      'optional': [],
+    }
+  };
+
   void switchCamera() => Helper.switchCamera(_localStream!.getVideoTracks()[0]);
 
-  void muteMic() {
+  void toggleMuteMic() {
     bool enabled = _localStream!.getAudioTracks()[0].enabled;
     _localStream!.getAudioTracks()[0].enabled = !enabled;
+  }
+
+  void toggleCamera() async {
+    var track = _localStream!.getVideoTracks()[0];
+    if(videoEnabled){
+      track.stop();
+      videoEnabled = false;
+    }else {
+      try{
+        var newStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+        _localStream!.removeTrack(track);
+        _localStream!.addTrack(newStream.getVideoTracks()[0]);
+        onLocalStream!.call(_localStream!);
+        videoEnabled = true;
+      }catch(e){
+        _handleMediaErrors(e.toString());
+      }
+    }
   }
 
   void _handleMediaErrors(String error) {
@@ -129,18 +164,6 @@ class CallSession{
 
   Future<MediaStream?> createStream() async{
     MediaStream? localStream;
-    final Map<String, dynamic> mediaConstraints = {
-      'audio': true,
-      'video': {
-        'mandatory': {
-          'minWidth': '640',
-          'minHeight': '480',
-          'minFrameRate': '30',
-        },
-        'facingMode': 'user',
-        'optional': [],
-      }
-    };
     try{
       localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
       onLocalStream!.call(localStream);

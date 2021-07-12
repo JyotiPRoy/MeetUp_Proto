@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/core/group_session.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/modals/error_dialog.dart';
+import 'package:ms_engage_proto/ui/modals/room_info.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
 class GroupCallScreen extends StatefulWidget {
@@ -41,6 +42,19 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
   
   Map<String,int> rendererRegister = {};
   List<Widget> rendererContainer = [];
+
+  Future<void> _showRoomInfo(BuildContext context) async {
+    Dialog roomInfo = Dialog(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+      backgroundColor: AppStyle.primaryColor,
+      child: RoomInfoDialog(roomID: widget.roomID,),
+    );
+    await showDialog<Dialog>(
+      context: context,
+      builder: (context) => roomInfo,
+    );
+  }
 
   void _onAddRemoteStream(MediaStream? stream, String id) {
     var remoteRenderer = RTCVideoRenderer();
@@ -105,6 +119,9 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration(milliseconds: 500), () async {
+      await _showRoomInfo(context);
+    });
     _groupSession = GroupSession(
       groupSessionID: widget.roomID,
       onAddRemote: _onAddRemoteStream,
@@ -184,7 +201,23 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
                             fontSize: 14),
                       )
                     ],
-                  )
+                  ),
+                  Expanded(
+                    child: SizedBox(),
+                  ),
+                  DefaultButton(
+                    onPress: () async => _showRoomInfo(context),
+                    child: Icon(
+                      FontAwesomeIcons.share,
+                      color: AppStyle.whiteAccent,
+                      size: 18,
+                    ),
+                    buttonColor: AppStyle.secondaryColor,
+                    buttonBorder:
+                    BorderSide(color: AppStyle.defaultBorderColor),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                  ),
+                  SizedBox(width: 20,),
                 ],
               ),
             ),
@@ -215,32 +248,6 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
                 children: [
                   DefaultButton(
                     onPress: () {
-
-                    },
-                    child: Icon(
-                      FontAwesomeIcons.microphone,
-                      color: AppStyle.defaultUnselectedColor,
-                    ),
-                    buttonColor: AppStyle.secondaryColor,
-                    buttonBorder:
-                    BorderSide(color: AppStyle.defaultBorderColor),
-                    padding: EdgeInsets.all(25),
-                  ),
-                  space,
-                  DefaultButton(
-                    onPress: () {},
-                    child: Icon(
-                      FontAwesomeIcons.video,
-                      color: AppStyle.defaultUnselectedColor,
-                    ),
-                    buttonColor: AppStyle.secondaryColor,
-                    buttonBorder:
-                    BorderSide(color: AppStyle.defaultBorderColor),
-                    padding: EdgeInsets.all(25),
-                  ),
-                  space,
-                  DefaultButton(
-                    onPress: () {
                       _groupSession.leaveCall();
                       Navigator.of(context).pop();
                     },
@@ -252,31 +259,6 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
                     buttonColor: AppStyle.defaultErrorColor,
                     padding: EdgeInsets.symmetric(horizontal: 35, vertical: 25),
                   ),
-                  space,
-                  DefaultButton(
-                    onPress: () {},
-                    child: Icon(
-                      FontAwesomeIcons.syncAlt,
-                      color: AppStyle.defaultUnselectedColor,
-                    ),
-                    buttonColor: AppStyle.secondaryColor,
-                    buttonBorder:
-                    BorderSide(color: AppStyle.defaultBorderColor),
-                    padding: EdgeInsets.all(25),
-                  ),
-                  space,
-                  DefaultButton(
-                    onPress: () {},
-                    child: Icon(
-                      FontAwesomeIcons.share,
-                      color: AppStyle.defaultUnselectedColor,
-                    ),
-                    buttonColor: AppStyle.secondaryColor,
-                    buttonBorder:
-                    BorderSide(color: AppStyle.defaultBorderColor),
-                    padding: EdgeInsets.all(25),
-                  ),
-                  space
                 ],
               ),
             )

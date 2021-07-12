@@ -202,15 +202,6 @@ class ScheduleViewer extends StatelessWidget {
             )
           ],
         ),
-        // TODO: ADD PARTICIPANTS LATER. AFTER FRIENDS IS IMPLEMENTED
-        // Container(
-        //   width: double.infinity,
-        //   child: SingleChildScrollView(
-        //     child: Row(
-        //
-        //     ),
-        //   ),
-        // )
       ],
     );
   }

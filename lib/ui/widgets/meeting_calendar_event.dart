@@ -53,8 +53,8 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
     var subtextColor = _isSelected
         ? AppStyle.whiteAccent.withOpacity(0.7)
         : AppStyle.defaultUnselectedColor;
-    final isOverdue
-        = widget.event.start.difference(DateTime.now()).inSeconds < 0;
+    final isOverdue =
+        widget.event.start.difference(DateTime.now()).inSeconds < 0;
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 12),
@@ -67,7 +67,7 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
             if (widget.groupController != null) {
               widget.groupController!.sink.add(widget.index!);
             }
-            if(widget.viewController != null){
+            if (widget.viewController != null) {
               widget.viewController!.add(widget.event);
             }
           },
@@ -117,10 +117,12 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
                     ),
                     Text(
                       isOverdue
-                        ? 'Past due date'
-                        :'Starts in ${UIUtils.formatTime(dateTime: widget.event.start)}',
+                          ? 'Past due date'
+                          : 'Starts in ${UIUtils.formatTime(dateTime: widget.event.start)}',
                       style: TextStyle(
-                        color: isOverdue ? AppStyle.defaultErrorColor : subtextColor,
+                        color: isOverdue
+                            ? AppStyle.defaultErrorColor
+                            : subtextColor,
                         fontSize: 14,
                       ),
                     )
@@ -132,36 +134,23 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
                 Row(
                   children: [
                     Text(
-                      '${!_isParticipantListEmpty
-                          ? widget.event.participants!.length.toString() + ' Participants' : 'No Participants'}',
-                      style: TextStyle(color: AppStyle.whiteAccent, fontSize: 18),
+                      '${!_isParticipantListEmpty ? widget.event.participants!.length.toString() + ' Participants' : 'No Participants'}',
+                      style:
+                          TextStyle(color: AppStyle.whiteAccent, fontSize: 18),
                     ),
                     Expanded(
                       child: SizedBox(),
                     ),
                     widget.groupController == null
-                        ? Row(
-                            children: [
-                              _isParticipantListEmpty
-                                  ? DefaultButton(
-                                      onPress: () {},
-                                      child: Text('Invite'),
-                                      fixedSize: Size(75, 50),
-                                    )
-                                  : SizedBox(),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              DefaultButton(
-                                onPress: () {},
-                                child: Text('Start'),
-                                fixedSize: Size(75, 50),
-                              )
-                            ],
+                        ? DefaultButton(
+                            onPress: () {},
+                            child: Text('Start'),
+                            fixedSize: Size(75, 50),
                           )
                         : DefaultButton(
                             onPress: () {
-                              SessionData.instance.deleteMeetingEvent(widget.event);
+                              SessionData.instance
+                                  .deleteMeetingEvent(widget.event);
                             },
                             fixedSize: Size(50, 50),
                             buttonColor: Colors.transparent,
