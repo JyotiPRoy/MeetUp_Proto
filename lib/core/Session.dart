@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:ms_engage_proto/env_stun_turn_servers.dart';
 import 'package:ms_engage_proto/model/chat.dart';
 import 'package:ms_engage_proto/model/user.dart';
 import 'package:ms_engage_proto/services/auth.dart';
@@ -47,13 +48,8 @@ class CallSession{
   StreamStateCallback? onRemoveRemoteStream;
 
   String get sdpSemantics => 'unified-plan';
-  final rtcIceServers = <String, dynamic>{
-    'iceServers' : [
-      {
-        'urls' : ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
-      },
-    ],
-  };
+  final rtcIceServers = RTCIceGatheringServers.rtcICEServers;
+
   final Map<String, dynamic> _config = {
     'mandatory': {},
     'optional': [
