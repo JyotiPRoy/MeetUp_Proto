@@ -102,10 +102,15 @@ class ChatCard extends StatelessWidget {
                     )
               : SizedBox(),
           Container(
-            child: Text(
-              chat.message!,
-              style: TextStyle(color: AppStyle.whiteAccent, fontSize: 16),
-              softWrap: true,
+            child: TextSelectionTheme(
+              data: TextSelectionThemeData(
+                selectionColor:  AppStyle.primaryHomeAction
+              ),
+              child: SelectableText(
+                chat.message!,
+                style: TextStyle(color: AppStyle.whiteAccent, fontSize: 16),
+                // softWrap: true,
+              ),
             ),
           ),
         ],
@@ -166,15 +171,10 @@ class _SingleAttachmentViewerState extends State<SingleAttachmentViewer> {
               SizedBox(
                 width: 10,
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: 200
-                ),
-                child: Text(
-                  widget.attachment.fileName,
-                  style: TextStyle(fontSize: 16, color: AppStyle.whiteAccent),
-                  overflow: TextOverflow.ellipsis,
-                ),
+              Text(
+                widget.attachment.fileName.substring(0, 12),
+                style: TextStyle(fontSize: 16, color: AppStyle.whiteAccent),
+                overflow: TextOverflow.ellipsis,
               )
             ],
           );

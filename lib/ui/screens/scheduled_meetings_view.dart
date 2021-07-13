@@ -20,7 +20,7 @@ class ScheduledMeetingsView extends StatefulWidget {
 class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
 
   StreamController<int> listController = StreamController<int>.broadcast();
-  final viewerController = StreamController<MeetingEvent>.broadcast();
+  final viewerController = StreamController<MeetingEvent?>.broadcast();
 
   void _showAddEventDialog(BuildContext context) async {
     Dialog signUp = Dialog(
@@ -162,12 +162,13 @@ class _ScheduledMeetingsViewState extends State<ScheduledMeetingsView>{
           Expanded(
             child: Container(
               padding: EdgeInsets.only(left: width * 0.08, right: width * 0.12, top: height * 0.06),
-              child: StreamBuilder<MeetingEvent>(
+              child: StreamBuilder<MeetingEvent?>(
                 stream: viewerController.stream,
                 builder: (context, snapshot) {
                   if(snapshot.hasData && snapshot.data != null){
                     return ScheduleViewer(
                       event: snapshot.data!,
+                      viewController: viewerController,
                     );
                   }
                   return Column(

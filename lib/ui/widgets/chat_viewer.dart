@@ -43,24 +43,21 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
     super.dispose();
   }
 
-  void _sendChat(UserProfile currentUser, ChatRoom chatRoom) async {
-    if (chatTextController.text.isNotEmpty || attachments.isNotEmpty) {
-      await SessionData.instance.sendChat(
-          Chat(
-            senderID: currentUser.userID,
-            message: chatTextController.text,
-          ),
-          chatRoom,
-          attachments.isEmpty ? null : attachments,
-          widget.isSession,
-          cancelSubject);
-      visibilityController.add(false);
-      attachmentController.add([]);
-      setState(() {
-        chatTextController.text = '';
-        _isSending = false;
-      });
-    }
+  void _sendChat(UserProfile currentUser, ChatRoom chatRoom, String? text) async {
+    await SessionData.instance.sendChat(
+        Chat(
+          senderID: currentUser.userID,
+          message: text,
+        ),
+        chatRoom,
+        attachments.isEmpty ? null : attachments,
+        widget.isSession,
+        cancelSubject);
+    visibilityController.add(false);
+    attachmentController.add([]);
+    setState(() {
+      _isSending = false;
+    });
   }
 
   void _pickAttachments() async {
@@ -187,7 +184,8 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                                 children: [
                                   ConstrainedBox(
                                     constraints: BoxConstraints(
-                                        maxWidth: width * 0.2, minWidth: 0),
+                                        maxWidth: widget.isSession ? 250 : width * 0.2,
+                                        minWidth: 0),
                                     child: ChatCard(
                                       isCurrentUser: isCurrentUser,
                                       chat: chat,
@@ -196,7 +194,7 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                                       // ? null
                                       // : other,
                                     ),
-                                  )
+                                  ),
                                 ],
                               );
                             }).toList(),
@@ -281,11 +279,13 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                               cursor: SystemMouseCursors.click,
                               child: GestureDetector(
                                 onTap: () {
-                                  if(chatTextController.text.isNotEmpty){
+                                  if (chatTextController.text.isNotEmpty || attachments.length > 0) {
+                                    String? msg = chatTextController.text;
                                     setState(() {
                                       _isSending = true;
+                                      chatTextController.text = '';
                                     });
-                                    _sendChat(currentUser, snapshot.data!);
+                                    _sendChat(currentUser, snapshot.data!, msg);
                                   }
                                 },
                                 child: _isSending
@@ -304,11 +304,13 @@ class _ChatViewerState extends ChatViewModel<ChatViewer> {
                             )
                           : DefaultButton(
                               onPress: () {
-                                if(chatTextController.text.isNotEmpty){
+                                if (chatTextController.text.isNotEmpty || attachments.length > 0) {
+                                  String? msg = chatTextController.text;
                                   setState(() {
                                     _isSending = true;
+                                    chatTextController.text = '';
                                   });
-                                  _sendChat(currentUser, snapshot.data!);
+                                  _sendChat(currentUser, snapshot.data!, msg);
                                 }
                               },
                               child: _isSending

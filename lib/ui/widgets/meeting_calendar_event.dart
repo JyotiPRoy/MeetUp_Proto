@@ -5,12 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
 import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:ms_engage_proto/ui/screens/group_call_screen.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 import 'package:ms_engage_proto/utils/ui_utils.dart';
 
 class MeetingCalendarEvent extends StatefulWidget {
   final MeetingEvent event;
-  final StreamController<MeetingEvent>? viewController;
+  final StreamController<MeetingEvent?>? viewController;
   final StreamController<int>? groupController;
   final int? index;
 
@@ -143,7 +144,13 @@ class _MeetingCalendarEventState extends State<MeetingCalendarEvent> {
                     ),
                     widget.groupController == null
                         ? DefaultButton(
-                            onPress: () {},
+                            onPress: () {
+                              Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_)
+                                  => GroupCallScreen(roomID: widget.event.roomID)
+                                  )
+                              );
+                            },
                             child: Text('Start'),
                             fixedSize: Size(75, 50),
                           )

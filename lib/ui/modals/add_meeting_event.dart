@@ -7,7 +7,12 @@ import 'package:ms_engage_proto/utils/misc_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AddMeetingEventDialog extends StatefulWidget {
-  const AddMeetingEventDialog({Key? key}) : super(key: key);
+  final MeetingEvent? toEdit;
+
+  const AddMeetingEventDialog({
+    Key? key,
+    this.toEdit
+  }) : super(key: key);
 
   @override
   _AddMeetingEventDialogState createState() => _AddMeetingEventDialogState();
@@ -102,6 +107,7 @@ class _AddMeetingEventDialogState extends State<AddMeetingEventDialog> {
           children: [
             _EventDetails(
               key: details,
+              toEdit: widget.toEdit,
             )
           ],
         ),
@@ -111,7 +117,12 @@ class _AddMeetingEventDialogState extends State<AddMeetingEventDialog> {
 }
 
 class _EventDetails extends StatefulWidget {
-  const _EventDetails({Key? key}) : super(key: key);
+  final MeetingEvent? toEdit;
+
+  const _EventDetails({
+    Key? key,
+    this.toEdit
+  }) : super(key: key);
 
   @override
   __EventDetailsState createState() => __EventDetailsState();
@@ -132,6 +143,21 @@ class __EventDetailsState extends State<_EventDetails> {
     fontSize: 18,
   );
 
+  @override
+  initState(){
+    super.initState();
+    if(widget.toEdit != null){
+      MeetingEvent event = widget.toEdit!;
+      titleController.text = event.title;
+      detailsController.text = event.details ?? '';
+      date = event.start;
+      start = event.start;
+      end = event.end;
+      allowAnon = event.allowAnon;
+      meetingID = event.roomID;
+    }
+  }
+
   MeetingEvent? validateAndCreateEvent() {
     if(titleController.text.isEmpty){
       setState(() {
@@ -142,6 +168,7 @@ class __EventDetailsState extends State<_EventDetails> {
       });
       return null;
     }
+    validateTime();
     return MeetingEvent(
       roomID: meetingID!,
       hostID: SessionData.instance.currentUser!.userID,
@@ -198,6 +225,7 @@ class __EventDetailsState extends State<_EventDetails> {
       end = DateTime.utc(date.year, date.month, date.day, end!.hour, end!.minute);
     }
     start = DateTime.utc(date.year, date.month, date.day, start.hour, start.minute);
+    print('Start: ${start.toIso8601String()}');
   }
 
   @override

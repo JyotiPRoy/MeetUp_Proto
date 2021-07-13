@@ -45,6 +45,9 @@ class CallSession{
   MediaStream? _localStream;
   List<MediaStream>? _remoteStreams;
 
+  MediaStream? get localStream => _localStream;
+  List<MediaStream>? get remoteStreams => _remoteStreams;
+
   StreamStateCallback? onLocalStream,
       onAddRemoteStream,
       onRemoveRemoteStream;

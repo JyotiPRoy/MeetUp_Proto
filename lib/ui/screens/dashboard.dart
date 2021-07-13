@@ -197,7 +197,11 @@ class _DashboardState extends State<Dashboard> {
                               Expanded(
                                 child: SizedBox(),
                               ),
-                              SearchWidget(),
+                              SearchWidget(
+                                changeFocus: (){
+                                  FocusScope.of(context).requestFocus(focusNode);
+                                },
+                              ),
                               SizedBox(
                                 width: 20,
                               ),

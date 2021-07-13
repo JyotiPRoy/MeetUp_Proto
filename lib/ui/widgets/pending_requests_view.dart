@@ -130,51 +130,45 @@ class _PendingRequestsViewState extends State<PendingRequestsView> {
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: layerLink,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () => _toggleOverlay(),
-          child: Container(
-            height: 50,
-            width: 50,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Container(
-                      clipBehavior: Clip.antiAlias,
-                      // width: 50,
-                      // height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(15)),
-                        border: Border.all(
-                          color: AppStyle.defaultBorderColor,
-                        ),
-                        color: AppStyle.secondaryColor,
-                      ),
-                      child: Icon(
-                        FontAwesomeIcons.bell,
-                        color: AppStyle.defaultUnselectedColor,
-                      )
-                  ),
-                ),
-                Positioned(
-                  left: 27,
-                  top: 16,
-                  child: Visibility(
-                    visible: _hasPendingRequests,
-                    child: Container(
-                      height: 8,
-                      width: 8,
-                      decoration: BoxDecoration(
-                        color: AppStyle.defaultErrorColor,
-                        shape: BoxShape.circle
-                      ),
+      child: Container(
+        height: 50,
+        width: 50,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  // width: 50,
+                  // height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    border: Border.all(
+                      color: AppStyle.defaultBorderColor,
                     ),
+                    color: AppStyle.secondaryColor,
+                  ),
+                  child: Icon(
+                    FontAwesomeIcons.bell,
+                    color: AppStyle.defaultUnselectedColor,
+                  )
+              ),
+            ),
+            Positioned(
+              left: 27,
+              top: 16,
+              child: Visibility(
+                visible: _hasPendingRequests,
+                child: Container(
+                  height: 8,
+                  width: 8,
+                  decoration: BoxDecoration(
+                    color: AppStyle.defaultErrorColor,
+                    shape: BoxShape.circle
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

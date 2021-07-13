@@ -11,7 +11,11 @@ import 'package:ms_engage_proto/ui/colors/style.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 
 class SearchWidget extends StatefulWidget {
-  const SearchWidget({Key? key}) : super(key: key);
+  final VoidCallback changeFocus;
+  const SearchWidget({
+    Key? key,
+    required this.changeFocus
+  }) : super(key: key);
 
   @override
   _SearchWidgetState createState() => _SearchWidgetState();
@@ -96,10 +100,6 @@ class _SearchWidgetState extends State<SearchWidget> {
                     var resultsBorder = BorderSide(
                       color: AppStyle.defaultBorderColor
                     );
-                    // var contacts
-                    //   = SessionData.instance.contactsStatic.map((user) => user.userID).toList();
-                    // var sentRequests
-                    //   = SessionData.instance.sentRequestsStatic;
 
                     return StreamBuilder<List<String>>(
                       stream: SessionData.instance.sentRequests,
@@ -156,9 +156,10 @@ class _SearchWidgetState extends State<SearchWidget> {
                                       : Icon(Icons.check, color: AppStyle.whiteAccent,),
                                   onPressed: (){
                                     sendRequest(dataMap);
-                                    overlayEntry?.remove();
+                                    widget.changeFocus.call();
                                     setState(() {
                                       requestSent = true;
+                                      _searchController.text = '';
                                     });
                                   },
                                 ),

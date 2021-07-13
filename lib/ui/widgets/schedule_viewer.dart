@@ -1,15 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ms_engage_proto/model/meeting_event.dart';
+import 'package:ms_engage_proto/store/session_data.dart';
 import 'package:ms_engage_proto/ui/colors/style.dart';
+import 'package:ms_engage_proto/ui/modals/add_meeting_event.dart';
+import 'package:ms_engage_proto/ui/screens/group_call_screen.dart';
 import 'package:ms_engage_proto/ui/widgets/default_button.dart';
 import 'package:ms_engage_proto/utils/ui_utils.dart';
 
 class ScheduleViewer extends StatelessWidget {
   final MeetingEvent event;
+  final StreamController<MeetingEvent?> viewController;
   ScheduleViewer({
     Key? key,
-    required this.event
+    required this.event,
+    required this.viewController
   }) : super(key: key);
 
   final _standardSpacing = SizedBox(
@@ -22,9 +30,9 @@ class ScheduleViewer extends StatelessWidget {
       fontWeight: FontWeight.bold
   );
 
-  DefaultButton _secondaryButtons({String? title, Widget? icon, EdgeInsetsGeometry? padding})
+  DefaultButton _secondaryButtons({String? title, Widget? icon, EdgeInsetsGeometry? padding, required VoidCallback onPress})
   => DefaultButton(
-      onPress: (){},
+      onPress: onPress,
       child: title != null
               ?Text(
                 title,
@@ -100,7 +108,13 @@ class ScheduleViewer extends StatelessWidget {
         Row(
           children: [
             DefaultButton(
-              onPress: (){},
+              onPress: (){
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_)
+                  => GroupCallScreen(roomID: event.roomID)
+                  )
+                );
+              },
               child: Text(
                 'Start',
                 style: _buttonTextStyle.copyWith(
@@ -110,16 +124,38 @@ class ScheduleViewer extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 40, vertical: 30),
             ),
             _standardSpacing,
-            _secondaryButtons(title: 'Copy Invitation'),
+            _secondaryButtons(
+              onPress: (){
+                Clipboard.setData(ClipboardData(text: event.roomID));
+              },
+              title: 'Copy Invitation',
+            ),
             _standardSpacing,
-            _secondaryButtons(title: 'Join Lobby'),
-            _standardSpacing,
-            _secondaryButtons(icon: Icon(
+            _secondaryButtons(
+              onPress: () async {
+                Dialog edit = Dialog(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+                  backgroundColor: AppStyle.primaryColor,
+                  child: AddMeetingEventDialog(
+                    toEdit: event,
+                  ),
+                );
+                await showDialog<Dialog>(
+                  context: context,
+                  builder: (context) => edit,
+                );
+              },
+                icon: Icon(
               Icons.edit,
               color: AppStyle.whiteAccent.withOpacity(0.7),
             )),
             _standardSpacing,
             _secondaryButtons(
+              onPress: (){
+                SessionData.instance.deleteMeetingEvent(event);
+                viewController.add(null);
+              },
               icon: Icon(
                 Icons.delete_outline_outlined,
                 color: AppStyle.whiteAccent.withOpacity(0.7),

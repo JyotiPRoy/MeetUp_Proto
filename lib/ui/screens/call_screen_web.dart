@@ -21,7 +21,7 @@ class CallScreenWeb extends StatefulWidget {
     Key? key,
     required this.host,
     required this.roomID,
-    this.title = 'Room Title',
+    this.title = 'Peer to Peer Meeting',
   }) : super(key: key);
 
   @override
@@ -103,7 +103,6 @@ class _CallScreenWebState extends State<CallScreenWeb> {
         });
       };
       _session.onAddRemoteStream = (stream){
-        print('REMOTE STREAM ADDED!');
         _remoteRenderer.srcObject = stream;
         setState(() {
           if(!_remoteStreamAdded){
@@ -116,9 +115,10 @@ class _CallScreenWebState extends State<CallScreenWeb> {
       _session.onTrack = (trackEvent){
         if(_remoteStreamAdded){
           setState(() {
-            var oldTrack = _remoteRenderer.srcObject!.getVideoTracks()[0];
-            _remoteRenderer.srcObject!.removeTrack(oldTrack);
-            _remoteRenderer.srcObject!.addTrack(trackEvent.track);
+            var oldTrack = _session.remoteStreams!.first.getVideoTracks()[0];
+            _session.remoteStreams!.first.removeTrack(oldTrack);
+            _session.remoteStreams!.first.addTrack(trackEvent.track);
+            _remoteRenderer.srcObject = _session.remoteStreams!.first;
           });
         }
       };
@@ -133,7 +133,9 @@ class _CallScreenWebState extends State<CallScreenWeb> {
       _session.sessionChatController.stream.listen((sessionChat) {
         chatViewController.add(sessionChat);
       });
-      await _showRoomInfo(context);
+      if(widget.host){
+        await _showRoomInfo(context);
+      }
     });
   }
 
