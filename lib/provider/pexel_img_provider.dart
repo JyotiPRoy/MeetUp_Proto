@@ -16,18 +16,17 @@ class PexelImageProvider{
   /// storing the current url in a var so that we don't call the api
   /// everytime the caller widget is rebuilt.
   static Future<String?> getImageUrl(int page) async {
-    // if(_currentImgUrl == ''){
-    //   var response = await http.get(
-    //       Uri.parse("https://api.pexels.com/v1/search?query=$searchBy&per_page=$perPage&page=$page"),
-    //       headers: {'Authorization' : PEXEL_API_KEY}
-    //   );
-    //   print('Response: ${response.body}');
-    //   Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-    //   String imgUrl = jsonResponse['photos'][currentInPage]['src']['large'];
-    //   _currentImgUrl = imgUrl;
-    //   return imgUrl;
-    // }else return _currentImgUrl;
-    return null;
+    if(_currentImgUrl == ''){
+      var response = await http.get(
+          Uri.parse("https://api.pexels.com/v1/search?query=$searchBy&per_page=$perPage&page=$page"),
+          headers: {'Authorization' : PEXEL_API_KEY}
+      );
+      print('Response: ${response.body}');
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String imgUrl = jsonResponse['photos'][currentInPage]['src']['large'];
+      _currentImgUrl = imgUrl;
+      return imgUrl;
+    }else return _currentImgUrl;
   }
 
   /// Use when the user wants to refresh the widget manually to load a
