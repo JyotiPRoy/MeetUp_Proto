@@ -45,12 +45,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-#Sensitive Files
-/android/app/google-services.json
-/ios/GoogleService-Info.plist
-/lib/provider/pexel_img_provider.dart
-/lib/store/algolia_helper.dart
-/lib/env_stun_turn_servers.dart
-/macos/GoogleService-Info.plist
-/web/index.html

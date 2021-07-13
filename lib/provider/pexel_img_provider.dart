@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-const String PEXEL_API_KEY = '563492ad6f917000010000016c8a76879ea448ed9200efe34d541712';
+const String PEXEL_API_KEY = 'YOUR_API_KEY';
 
 class PexelImageProvider{
   static String searchBy = 'Nature%20ultra%20wide';
