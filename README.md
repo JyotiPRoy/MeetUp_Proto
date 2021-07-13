@@ -7,6 +7,8 @@ A prototype of a WebRTC Video chat app built for the Microsoft Engage 2021 Chall
 
 ## Code
 ### To see the code go to: [master/lib](https://github.com/JyotiPRoy/MeetUp_Proto/tree/master/lib)
+Note: Some files have not been uploaded as those contained private info (API Keys). If you want to clone the project and make it work
+you'll have to provide your own API Keys in that case.
 
 ## Features
 1. User Authentication with email & password
@@ -26,13 +28,13 @@ A prototype of a WebRTC Video chat app built for the Microsoft Engage 2021 Chall
 
 ## Screenshots
 <p float="left">
-  <img src="https://github.com/JyotiPRoy/MeetUp_Proto/blob/fb7f37a9584ace3f079fa68d517feca4bc8514f2/Flutter%20Demo%20-%20Google%20Chrome%2013-07-2021%2020_14_28.png" width="356" height="200">
-  <img src="https://github.com/JyotiPRoy/MeetUp_Proto/blob/fb7f37a9584ace3f079fa68d517feca4bc8514f2/Flutter%20Demo%20-%20Google%20Chrome%2013-07-2021%2020_15_14.png" width="356" height="200">
+  <img src="https://github.com/JyotiPRoy/MeetUp_Proto/blob/d0c9ffc070125708e9d8fea1e18b72f3aec5b9d9/Screenshots/Flutter%20Demo%20-%20Google%20Chrome%2013-07-2021%2020_14_28.png" width="356" height="200">
+  <img src="https://github.com/JyotiPRoy/MeetUp_Proto/blob/d0c9ffc070125708e9d8fea1e18b72f3aec5b9d9/Screenshots/Flutter%20Demo%20-%20Google%20Chrome%2013-07-2021%2020_15_14.png" width="356" height="200">
 </p>
 
 <p float="left">
-  <img src="https://github.com/JyotiPRoy/MeetUp_Proto/blob/fb7f37a9584ace3f079fa68d517feca4bc8514f2/Flutter%20Demo%20-%20Google%20Chrome%2013-07-2021%2020_15_30.png" width="356" height="200">
-  <img src="https://github.com/JyotiPRoy/MeetUp_Proto/blob/fb7f37a9584ace3f079fa68d517feca4bc8514f2/Flutter%20Demo%20-%20Google%20Chrome%2013-07-2021%2020_15_38.png" width="356" height="200">
+  <img src="https://github.com/JyotiPRoy/MeetUp_Proto/blob/d0c9ffc070125708e9d8fea1e18b72f3aec5b9d9/Screenshots/Flutter%20Demo%20-%20Google%20Chrome%2013-07-2021%2020_15_30.png" width="356" height="200">
+  <img src="https://github.com/JyotiPRoy/MeetUp_Proto/blob/d0c9ffc070125708e9d8fea1e18b72f3aec5b9d9/Screenshots/Flutter%20Demo%20-%20Google%20Chrome%2013-07-2021%2020_15_38.png" width="356" height="200">
 </p>
 
 ## Tech Used:
