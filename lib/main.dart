@@ -30,9 +30,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Montserrat',
       ),
-      home: false
-      ? Dashboard()
-      : FutureBuilder(
+      home: FutureBuilder(
         future: Firebase.initializeApp(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
