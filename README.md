@@ -6,7 +6,7 @@ A prototype of a WebRTC Video chat app built for the Microsoft Engage 2021 Chall
 [MeetUp proto](https://ms-engage-proto.firebaseapp.com/#/)
 
 ## Code
-### To see the code go to: [master/lib](https://github.com/JyotiPRoy/MeetUp_Proto/tree/master/lib)
+### To see the code go to: [master/lib](https://github.com/JyotiPRoy/MeetUp_Proto/tree/new_web_design/lib)
 Note: Some files have not been uploaded as those contained private info (API Keys). If you want to clone the project and make it work
 you'll have to provide your own API Keys in that case.
 
