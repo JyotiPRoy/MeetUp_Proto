@@ -59,20 +59,4 @@ class UserProfile{
       optOutOfSearch: optOutOfSearch ?? this.optOutOfSearch,
     );
   }
-
-  Future<void> uploadPFP(String path) async{
-    // TODO: IMPLEMENT
-  }
-
-  Future<void> updateUserDetails(UserProfile newUser) async{
-    // TODO: IMPLEMENT
-  }
-
-  Future<void> _createUser() async{
-    // TODO: IMPLEMENT
-  }
-
-  Future<void> deleteUser() async{
-    // TODO: IMPLEMENT
-  }
 }
