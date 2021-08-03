@@ -20,7 +20,7 @@ you'll have to provide your own API Keys in that case.
 6. Chat with other users, also share multiple file attachments with them
 7. Add Meeting reminders/events to plan ahead for a meeting
 8. Have a peer 2 peer video call with a user with a live chat
-9. Chat with multiple users (preferably 4)
+9. Video Chat with multiple users (preferably 4)
 
 ## Design Inspiration
 [Behance Link](https://www.behance.net/gallery/108311689/Zoom-Redesign-Ui-Kit-2021)
